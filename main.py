@@ -25,7 +25,7 @@ def main(fichier: str):
 
     print(program.json())
 
-    with open("result.json", mode="w", encoding="utf-8") as f:
+    with open("new_result.json", mode="w", encoding="utf-8") as f:
         dump(program.json(), f, indent=2)
 
 if __name__ == "__main__":

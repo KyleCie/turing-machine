@@ -38,7 +38,7 @@ class Node(ABC):
 class Statement(Node):
     pass
 
-class Expression(Node):
+class Literal(Node):
     pass
 
 class Program(Node):
@@ -63,152 +63,9 @@ class Program(Node):
                           ]
         }
 
-class ExpressionStatement(Statement):
-    
-    def __init__(self, expr: Expression = None) -> None:
-        
-        self.expr: Expression = expr
+class IdentifierLiteral(Literal):
 
-    def type(self) -> NodeType:
-        
-        return NodeType.ExpressionStatement
-    
-    def json(self) -> dict:
-        
-        return {
-            "type": self.type().value,
-            "expr": self.expr.json()
-        }
-
-class BlockStatement(Statement):
-
-    def __init__(self, statements: list[Statement] = None) -> None:
-
-        self.statements = statements if statements is not None else []
-        return None
-
-    def type(self) -> NodeType:
-        
-        return NodeType.BlockStatement
-    
-    def json(self) -> dict:
-
-        return {
-            "type":       self.type().value,
-            "statements": [stmt.json() for stmt in self.statements]
-        }
-
-class ValuesStatement(Statement):
-
-    def __init__(self, body: BlockStatement = None) -> None:
-        
-        self.body: BlockStatement = body
-        return None
-
-    def type(self) -> NodeType:
-
-        return NodeType.ValuesStatement
-    
-    def json(self) -> dict:
-
-        return {
-            "type": self.type().value,
-            "body": self.body.json()
-        }
-    
-class StateStatement(Statement):
-    def __init__(self, expr: Expression = None, 
-                       body: BlockStatement = None) -> None:
-        
-        self.expr: Expression = expr
-        self.body: BlockStatement = body
-        return None
-
-    def type(self) -> NodeType:
-
-        return NodeType.StateStatement
-    
-    def json(self) -> dict:
-
-        return {
-            "type": self.type().value,
-            "expr": self.expr.json(),
-            "body": self.body.json()
-        }
-    
-class InitialStateStatement(Statement):
-    def __init__(self, state: StateStatement = None) -> None:
-        
-        self.state: StateStatement = state
-        return None
-
-    def type(self) -> NodeType:
-
-        return NodeType.InitialStateStatement
-    
-    def json(self) -> dict:
-
-        return {
-            "type": self.type().value,
-            "state": self.state.json()
-        }
-    
-class CommandStatement(Statement):
-
-    def __init__(self, statements: list[Statement] = None) -> None:
-
-        self.statements = statements if statements is not None else []
-        return None
-
-    def type(self) -> NodeType:
-        
-        return NodeType.CommandStatement
-    
-    def json(self) -> dict:
-
-        return {
-            "type":       self.type().value,
-            "statements": [stmt.json() for stmt in self.statements]
-        }
-    
-class CodeStatement(Statement):
-    def __init__(self, body: BlockStatement = None) -> None:
-        
-        self.body: BlockStatement = body
-        return None
-
-    def type(self) -> NodeType:
-
-        return NodeType.CodeStatement
-    
-    def json(self) -> dict:
-
-        return {
-            "type": self.type().value,
-            "body": self.body.json()
-        }
-
-class RubanStatement(Statement):
-
-    def __init__(self, statements: list[Statement] = None) -> None:
-
-        self.statements = statements if statements is not None else []
-        return None
-
-    def type(self) -> NodeType:
-        
-        return NodeType.RubanStatement
-    
-    def json(self) -> dict:
-
-        return {
-            "type":       self.type().value,
-            "statements": [stmt.json() for stmt in self.statements]
-        }
-
-class IdentifierLiteral(Expression):
-
-    def __init__(self, value: str = None) -> None:
+    def __init__(self, value: str) -> None:
         
         self.value: str = value
     
@@ -223,9 +80,9 @@ class IdentifierLiteral(Expression):
             "value": self.value
         }
 
-class NoneLiteral(Expression):
+class NoneLiteral(Literal):
 
-    def __init__(self, value: str = None) -> None:
+    def __init__(self, value: str) -> None:
         
         self.value: str = value
     
@@ -240,9 +97,9 @@ class NoneLiteral(Expression):
             "value": self.value
         }
 
-class StopLiteral(Expression):
+class StopLiteral(Literal):
 
-    def __init__(self, value: str = None) -> None:
+    def __init__(self, value: str) -> None:
         
         self.value: str = value
     
@@ -257,9 +114,9 @@ class StopLiteral(Expression):
             "value": self.value
         }
 
-class StateLiteral(Expression):
+class StateLiteral(Literal):
 
-    def __init__(self, value: str = None) -> None:
+    def __init__(self, value: str) -> None:
         
         self.value: str = value
     
@@ -274,9 +131,9 @@ class StateLiteral(Expression):
             "value": self.value
         }
 
-class DirectionLiteral(Expression):
+class DirectionLiteral(Literal):
 
-    def __init__(self, value: str = None) -> None:
+    def __init__(self, value: str) -> None:
         
         self.value: str = value
     
@@ -291,9 +148,9 @@ class DirectionLiteral(Expression):
             "value": self.value
         }
 
-class EndLiteral(Expression):
+class EndLiteral(Literal):
 
-    def __init__(self, value: str = None) -> None:
+    def __init__(self, value: str) -> None:
         
         self.value: str = value
     
@@ -306,4 +163,97 @@ class EndLiteral(Expression):
         return {
             "type":  self.type().value,
             "value": self.value
+        }
+    
+class ValuesStatement(Statement):
+
+    def __init__(self, literals: list[Literal] | None = None) -> None:
+        
+        self.literals = literals if literals else []
+        return None
+
+    def type(self) -> NodeType:
+
+        return NodeType.ValuesStatement
+    
+    def json(self) -> dict:
+
+        return {
+            "type": self.type().value,
+            "literals": [literal.json() for literal in self.literals]
+        }
+
+class CommandStatement(Statement):
+
+    def __init__(self, statements: list[Literal] | None = None) -> None:
+
+        self.statements = statements if statements is not None else []
+        return None
+
+    def type(self) -> NodeType:
+        
+        return NodeType.CommandStatement
+    
+    def json(self) -> dict:
+
+        return {
+            "type":       self.type().value,
+            "statements": [stmt.json() for stmt in self.statements]
+        }
+
+class StateStatement(Statement):
+    def __init__(self, name: StateLiteral, 
+                       commands: list[CommandStatement] | None = None) -> None:
+        
+        self.name = name
+        self.commands: list[CommandStatement] = commands if commands else []
+        return None
+
+    def type(self) -> NodeType:
+
+        return NodeType.StateStatement
+    
+    def json(self) -> dict:
+
+        return {
+            "type": self.type().value,
+            "name": self.name.json(),
+            "commands": [command.json() for command in self.commands]
+        }
+
+class InitialStateStatement(Statement):
+    def __init__(self, name: StateLiteral, 
+                       commands: list[CommandStatement] | None = None) -> None:
+        
+        self.name: StateLiteral = name
+        self.commands: list[CommandStatement] = commands if commands else []
+        return None
+
+    def type(self) -> NodeType:
+
+        return NodeType.InitialStateStatement
+    
+    def json(self) -> dict:
+
+        return {
+            "type": self.type().value,
+            "name": self.name.json(),
+            "commands": [command.json() for command in self.commands]
+        }
+
+class CodeStatement(Statement):
+    def __init__(self, ruban: list[Literal] | None = None) -> None:
+        
+        self.ruban: list[Literal] = ruban if ruban else []
+        return None
+
+    def type(self) -> NodeType:
+
+        return NodeType.CodeStatement
+    
+    def json(self) -> dict:
+
+        return {
+            "type": self.type().value,
+            "ruban": [case.json() for case in self.ruban]
         }

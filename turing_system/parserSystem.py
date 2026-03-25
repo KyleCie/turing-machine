@@ -1,12 +1,10 @@
 from .astSystem import (
-    BlockStatement,
-    ExpressionStatement,
     ValuesStatement,
     InitialStateStatement,
     StateStatement,
     CommandStatement,
     CodeStatement,
-    RubanStatement,
+    Literal,
     DirectionLiteral,
     IdentifierLiteral,
     StateLiteral,
@@ -30,8 +28,8 @@ class Parser:
         # list of errors caught during parsing
         self.errors: list[str] = []
 
-        self.current_token: Token = None
-        self.peek_token:    Token = None
+        self.current_token: Token = self.lexer.next_token()
+        self.peek_token:    Token = self.lexer.next_token()
 
         self.prefix_parse_fns: dict[TokenType, Callable] = {
 
@@ -42,10 +40,6 @@ class Parser:
             TokenType.STOP: self.__parse_stop,
 
         }
-
-        # populate the current_token and peek_token
-        self.__next_token()
-        self.__next_token()
 
     def __next_token(self) -> None:
 
@@ -88,16 +82,16 @@ class Parser:
                 self.__next_token()
                 continue
 
-            stmt: Statement | None = self.__parse_statement()
+            stmt = self.__parse_statement()
 
             if stmt is not None:
-                program.statements.append(stmt)
+                program.statements.append(stmt) #type: ignore
 
         self.__next_token()
 
         return program
     
-    def __parse_statement(self) -> Statement | None:
+    def __parse_statement(self) -> Statement | Literal | None:
 
         match self.current_token.type:
 
@@ -114,66 +108,59 @@ class Parser:
                 return self.__parse_code_statement()
             
             case _:
-                return self.__parse_expression_statement()
+                return self.__parse_expression()
 
     def __parse_values_statement(self) -> ValuesStatement | None:
 
         if not self.__expect_peek(TokenType.COLON):
             return None
         
-        body: BlockStatement = self.__parse_value_body_statement()
+        body: list[Literal] = self.__parse_value_body_statement()
 
-        vs = ValuesStatement(body=body)
-
-        print("->>>>>")
-        print(vs.json())
-
+        values_stmt = ValuesStatement(literals=body)
 
         if not self.__current_token_is(TokenType.END):
             return None
 
         self.__next_token()
 
-        return vs
+        return values_stmt
 
-    def __parse_value_body_statement(self) -> BlockStatement:
+    def __parse_value_body_statement(self) -> list[Literal]:
 
-        block_stmt: BlockStatement = BlockStatement()
+        literals_stmt = []
 
         self.__next_token() # skip ':'
 
         while not self.__current_token_is(TokenType.END) and \
               not self.__current_token_is(TokenType.EOF):
             
-            while self.__current_token_is(TokenType.EOL) or \
-                  self.__current_token_is(TokenType.COMMA):
+            while (self.__current_token_is(TokenType.EOL) or \
+                   self.__current_token_is(TokenType.COMMA)) and \
+                not self.__peek_token_is(TokenType.END):
 
                 self.__next_token()
 
-            stmt: Statement | None = self.__parse_statement()
+            stmt = self.__parse_expression()
 
             if stmt is not None:
-                block_stmt.statements.append(stmt)
+                literals_stmt.append(stmt)
 
             self.__next_token()
 
-        return block_stmt
+        return literals_stmt
 
     def __parse_initial_state_statement(self) -> InitialStateStatement | None:
 
-        if not self.__expect_peek(TokenType.STATE):
-            return None
-        
-        state = self.__parse_state_statement()
-
-        return InitialStateStatement(state)
-
-    def __parse_state_statement(self) -> StateStatement | None:
+        self.__next_token() # skip 'state'
 
         if not self.__expect_peek(TokenType.IDENT):
             return None
         
         expr = self.__parse_expression()
+
+        if expr is None:
+            return None
 
         if expr.type() == NodeType.IdentifierLiteral:
             expr = StateLiteral(expr.value)
@@ -182,13 +169,40 @@ class Parser:
 
         body = self.__parse_body_state_statement()
 
+        if body is None:
+            return None
+
+        self.__next_token() # pass the 'END'
+
+        return InitialStateStatement(expr, body)
+
+    def __parse_state_statement(self) -> StateStatement | None:
+
+        if not self.__expect_peek(TokenType.IDENT):
+            return None
+        
+        expr = self.__parse_expression()
+
+        if expr is None:
+            return None
+
+        if expr.type() == NodeType.IdentifierLiteral:
+            expr = StateLiteral(expr.value)
+
+        self.__next_token() # pass the ident state
+
+        body = self.__parse_body_state_statement()
+
+        if body is None:
+            return None
+
         self.__next_token() # pass the 'END'
 
         return StateStatement(expr, body)
 
-    def __parse_body_state_statement(self) -> BlockStatement | None:
+    def __parse_body_state_statement(self) -> list[CommandStatement] | None:
 
-        block_stmt = BlockStatement()
+        command_stmts = []
 
         self.__next_token() # skip ':'
 
@@ -208,7 +222,7 @@ class Parser:
                 if self.__current_token_is(TokenType.COMMA):
                     self.__next_token()
 
-                stmt = self.__parse_expression_statement()
+                stmt = self.__parse_expression()
 
                 if stmt:
                     command_stmt.statements.append(stmt)
@@ -216,12 +230,12 @@ class Parser:
                 if not self.__current_token_is(TokenType.EOL):
                     self.__next_token()
 
-            block_stmt.statements.append(command_stmt)
+            command_stmts.append(command_stmt)
 
             if self.__current_token_is(TokenType.EOL) and not self.__peek_token_is(TokenType.END):
                 self.__next_token()
 
-        return block_stmt
+        return command_stmts
 
     def __parse_code_statement(self) -> CodeStatement | None:
 
@@ -237,9 +251,9 @@ class Parser:
 
         return CodeStatement(body)
 
-    def __parse_body_code_statement(self) -> BlockStatement | None:
+    def __parse_body_code_statement(self) -> list[Literal] | None:
 
-        ruban_stmt: RubanStatement = RubanStatement()
+        ruban_stmts: list[Literal] = []
 
         self.__next_token() # skip ':'
 
@@ -250,37 +264,23 @@ class Parser:
                   self.__current_token_is(TokenType.COMMA):
                 self.__next_token()
 
-            stmt: Statement | None = self.__parse_statement()
+            stmt = self.__parse_statement()
 
             if stmt is not None:
-                ruban_stmt.statements.append(stmt)
+                ruban_stmts.append(stmt) #type: ignore
 
             self.__next_token()
 
-        return ruban_stmt
-
-    def __parse_expression_statement(self) -> ExpressionStatement | None:
-
-        expr = self.__parse_expression()
-
-        if expr is None:
-            return None
-        
-        if self.__peek_token_is(TokenType.EOL):
-            self.__next_token()
-
-        stmt: ExpressionStatement = ExpressionStatement(expr=expr)
-
-        return stmt
+        return ruban_stmts
     
     def __parse_expression(self):
 
         func: Callable | None = self.prefix_parse_fns.get(self.current_token.type)
     
         if func is None:
-            return None
-        
-        result = func()
+            result = None
+        else:
+            result = func()
 
         return result
 

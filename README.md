@@ -250,6 +250,10 @@ Your machine does not reach a `STOP` condition.
 
 ---
 
+## Updates
+
+* 25/03/26, [see commit](https://github.com/KyleCie/turing-machine/commit/7aaeeffddcbcb251179a5a6b79278c280f35ed9b) : initial commit.
+
 ## Contributors
 
 * creator [KyleCie]
