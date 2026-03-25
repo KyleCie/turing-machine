@@ -1,0 +1,256 @@
+{
+  "type": "Program",
+  "statements": [
+    {
+      "ValuesStatement": {
+        "type": "ValuesStatement",
+        "body": {
+          "type": "BlockStatement",
+          "statements": [
+            {
+              "type": "ExpressionStatement",
+              "expr": {
+                "type": "IdentifierLiteral",
+                "value": "0"
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "expr": {
+                "type": "IdentifierLiteral",
+                "value": "1"
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "expr": {
+                "type": "IdentifierLiteral",
+                "value": "10"
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "expr": {
+                "type": "IdentifierLiteral",
+                "value": "12"
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "expr": {
+                "type": "IdentifierLiteral",
+                "value": "14"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "InitialStateStatement": {
+        "type": "InitialStateStatement",
+        "state": {
+          "type": "StateStatement",
+          "expr": {
+            "type": "StateLiteral",
+            "value": "e1"
+          },
+          "body": {
+            "type": "BlockStatement",
+            "statements": [
+              {
+                "type": "CommandStatement",
+                "statements": [
+                  {
+                    "type": "ExpressionStatement",
+                    "expr": {
+                      "type": "NoneLiteral",
+                      "value": "_"
+                    }
+                  },
+                  {
+                    "type": "ExpressionStatement",
+                    "expr": {
+                      "type": "NoneLiteral",
+                      "value": "_"
+                    }
+                  },
+                  {
+                    "type": "ExpressionStatement",
+                    "expr": {
+                      "type": "IdentifierLiteral",
+                      "value": "e1"
+                    }
+                  },
+                  {
+                    "type": "ExpressionStatement",
+                    "expr": {
+                      "type": "DirectionLiteral",
+                      "value": "right"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "CommandStatement",
+                "statements": [
+                  {
+                    "type": "ExpressionStatement",
+                    "expr": {
+                      "type": "IdentifierLiteral",
+                      "value": "0"
+                    }
+                  },
+                  {
+                    "type": "ExpressionStatement",
+                    "expr": {
+                      "type": "IdentifierLiteral",
+                      "value": "1"
+                    }
+                  },
+                  {
+                    "type": "ExpressionStatement",
+                    "expr": {
+                      "type": "IdentifierLiteral",
+                      "value": "e2"
+                    }
+                  },
+                  {
+                    "type": "ExpressionStatement",
+                    "expr": {
+                      "type": "DirectionLiteral",
+                      "value": "left"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "CommandStatement",
+                "statements": [
+                  {
+                    "type": "ExpressionStatement",
+                    "expr": {
+                      "type": "IdentifierLiteral",
+                      "value": "10"
+                    }
+                  },
+                  {
+                    "type": "ExpressionStatement",
+                    "expr": {
+                      "type": "StopLiteral",
+                      "value": "STOP"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "StateStatement": {
+        "type": "StateStatement",
+        "expr": {
+          "type": "StateLiteral",
+          "value": "e2"
+        },
+        "body": {
+          "type": "BlockStatement",
+          "statements": [
+            {
+              "type": "CommandStatement",
+              "statements": [
+                {
+                  "type": "ExpressionStatement",
+                  "expr": {
+                    "type": "IdentifierLiteral",
+                    "value": "12"
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expr": {
+                    "type": "StopLiteral",
+                    "value": "STOP"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "CommandStatement",
+              "statements": [
+                {
+                  "type": "ExpressionStatement",
+                  "expr": {
+                    "type": "IdentifierLiteral",
+                    "value": "10"
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expr": {
+                    "type": "IdentifierLiteral",
+                    "value": "1"
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expr": {
+                    "type": "IdentifierLiteral",
+                    "value": "e1"
+                  }
+                },
+                {
+                  "type": "ExpressionStatement",
+                  "expr": {
+                    "type": "DirectionLiteral",
+                    "value": "right"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "CodeStatement": {
+        "type": "CodeStatement",
+        "body": {
+          "type": "RubanStatement",
+          "statements": [
+            {
+              "type": "ExpressionStatement",
+              "expr": {
+                "type": "NoneLiteral",
+                "value": "_"
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "expr": {
+                "type": "NoneLiteral",
+                "value": "_"
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "expr": {
+                "type": "NoneLiteral",
+                "value": "_"
+              }
+            },
+            {
+              "type": "ExpressionStatement",
+              "expr": {
+                "type": "NoneLiteral",
+                "value": "_"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
