@@ -11,7 +11,7 @@ class Lexer:
         self.line_no:       int =  1
 
         self.in_a_comment: bool = False
-        self.current_char: str  = None
+        self.current_char: str | None = None
 
         self.__read_char() # init.
 
@@ -76,9 +76,9 @@ class Lexer:
 
         return self.source[start:self.position]
 
-    def next_token(self) -> Token:
+    def next_token(self) -> Token | None:
 
-        token: Token = None
+        token: Token | None = None
         
         self.__skip_spaces()
 

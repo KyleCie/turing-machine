@@ -1,18 +1,23 @@
 from .astSystem import (
+
+    Program,
+
+    Statement,
     ValuesStatement,
     InitialStateStatement,
     StateStatement,
     CommandStatement,
     CodeStatement,
+
     Literal,
     DirectionLiteral,
     IdentifierLiteral,
     StateLiteral,
     StopLiteral,
     NoneLiteral,
-    Program,
-    Statement,
-    NodeType
+
+    NodeType,
+
 )
 from .lexerSystem import Lexer
 from .tokenSystem import TokenType, Token
@@ -28,10 +33,10 @@ class Parser:
         # list of errors caught during parsing
         self.errors: list[str] = []
 
-        self.current_token: Token = self.lexer.next_token()
-        self.peek_token:    Token = self.lexer.next_token()
+        self.current_token: Token | None = self.lexer.next_token()
+        self.peek_token:    Token | None = self.lexer.next_token()
 
-        self.prefix_parse_fns: dict[TokenType, Callable] = {
+        self.token_type_to_func: dict[TokenType, Callable] = {
 
             TokenType.IDENT: self.__parse_identifier,
             TokenType.NONE: self.__parse_none,
@@ -49,14 +54,14 @@ class Parser:
         print(self.current_token)
 
         return None
-    
+
     def __current_token_is(self, token_type: TokenType) -> bool:
-    
-        return self.current_token.type == token_type
+
+        return self.current_token.type == token_type #type: ignore
     
     def __peek_token_is(self, token_type: TokenType) -> bool:
 
-        return self.peek_token.type == token_type
+        return self.peek_token.type == token_type #type: ignore
     
     def __expect_peek(self, token_type: TokenType) -> bool:
 
@@ -67,18 +72,34 @@ class Parser:
         else:
             self.__peek_error(token_type)
             return False
-    
+
+    def __expect_current(self, token_type: TokenType) -> bool:
+
+        if self.__current_token_is(token_type):
+            self.__next_token()
+            return True
+        
+        else:
+            self.__current_error(token_type)
+            return False
+
+    def __current_error(self, token_type: TokenType) -> None:
+
+        self.errors.append(f"Expected current token to be {token_type}, got " + 
+                           f"{self.current_token.type} instead. -> {self.lexer.position}") #type: ignore
+
     def __peek_error(self, token_type: TokenType) -> None:
 
-        self.errors.append(f"Expected next token to be {token_type}, got {self.peek_token.type} instead. -> {self.lexer.position}")
+        self.errors.append(f"Expected next token to be {token_type}, got " +
+                           f"{self.peek_token.type} instead. -> {self.lexer.position}") #type: ignore
 
     def parse_program(self) -> Program:
 
         program: Program = Program()
 
-        while self.current_token.type != TokenType.EOF:
+        while self.current_token.type != TokenType.EOF: #type: ignore
 
-            if self.current_token.type == TokenType.EOL:
+            if self.current_token.type == TokenType.EOL: #type: ignore
                 self.__next_token()
                 continue
 
@@ -93,7 +114,7 @@ class Parser:
     
     def __parse_statement(self) -> Statement | Literal | None:
 
-        match self.current_token.type:
+        match self.current_token.type: #type: ignore
 
             case TokenType.VALUES:
                 return self.__parse_values_statement()
@@ -115,22 +136,21 @@ class Parser:
         if not self.__expect_peek(TokenType.COLON):
             return None
         
-        body: list[Literal] = self.__parse_value_body_statement()
+        body = self.__parse_value_body_statement()
 
         values_stmt = ValuesStatement(literals=body)
 
-        if not self.__current_token_is(TokenType.END):
+        if not self.__expect_current(TokenType.END):
             return None
-
-        self.__next_token()
 
         return values_stmt
 
-    def __parse_value_body_statement(self) -> list[Literal]:
+    def __parse_value_body_statement(self) -> list[Literal] | None:
 
         literals_stmt = []
 
-        self.__next_token() # skip ':'
+        if not self.__expect_current(TokenType.COLON):
+            return None
 
         while not self.__current_token_is(TokenType.END) and \
               not self.__current_token_is(TokenType.EOF):
@@ -152,7 +172,9 @@ class Parser:
 
     def __parse_initial_state_statement(self) -> InitialStateStatement | None:
 
-        self.__next_token() # skip 'state'
+
+        if not self.__expect_peek(TokenType.STATE):
+            return None
 
         if not self.__expect_peek(TokenType.IDENT):
             return None
@@ -172,7 +194,8 @@ class Parser:
         if body is None:
             return None
 
-        self.__next_token() # pass the 'END'
+        if not self.__expect_current(TokenType.END):
+            return None
 
         return InitialStateStatement(expr, body)
 
@@ -196,7 +219,8 @@ class Parser:
         if body is None:
             return None
 
-        self.__next_token() # pass the 'END'
+        if not self.__expect_current(TokenType.END):
+            return None
 
         return StateStatement(expr, body)
 
@@ -204,7 +228,8 @@ class Parser:
 
         command_stmts = []
 
-        self.__next_token() # skip ':'
+        if not self.__expect_current(TokenType.COLON):
+            return None
 
         while not self.__current_token_is(TokenType.END) or \
               not self.__peek_token_is(TokenType.END):
@@ -255,7 +280,8 @@ class Parser:
 
         ruban_stmts: list[Literal] = []
 
-        self.__next_token() # skip ':'
+        if not self.__expect_current(TokenType.COLON):
+            return None
 
         while not self.__current_token_is(TokenType.END) and \
               not self.__current_token_is(TokenType.EOF):
@@ -275,7 +301,7 @@ class Parser:
     
     def __parse_expression(self):
 
-        func: Callable | None = self.prefix_parse_fns.get(self.current_token.type)
+        func: Callable | None = self.token_type_to_func.get(self.current_token.type) #type: ignore
     
         if func is None:
             result = None
@@ -286,16 +312,16 @@ class Parser:
 
     def __parse_identifier(self) -> IdentifierLiteral:
 
-        return IdentifierLiteral(self.current_token.literal)
+        return IdentifierLiteral(self.current_token.literal) #type: ignore
     
     def __parse_none(self) -> NoneLiteral:
 
-        return NoneLiteral(self.current_token.literal)
+        return NoneLiteral(self.current_token.literal) #type: ignore
     
     def __parse_direction(self) -> DirectionLiteral:
 
-        return DirectionLiteral(self.current_token.literal)
+        return DirectionLiteral(self.current_token.literal) #type: ignore
     
     def __parse_stop(self) -> StopLiteral:
 
-        return StopLiteral(self.current_token.literal)
+        return StopLiteral(self.current_token.literal) #type: ignore
