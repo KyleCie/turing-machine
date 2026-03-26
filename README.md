@@ -254,6 +254,7 @@ Your machine does not reach a `STOP` condition.
 
 ## Updates
 
+* 26/05/26, [see commit](https://github.com/KyleCie/turing-machine/commit/42ff5740a21e483953ce059d4b7e5baddd3857c3) : added a checking python's version for the match / case system (else it use if statements).
 * 25/03/26, [see commit](https://github.com/KyleCie/turing-machine/commit/8d46db319339a12e4f629eb5efd36cb2175746ec) : fixing some typos in the code, and added more checks while parsing.
 * 25/03/26, [see commit](https://github.com/KyleCie/turing-machine/commit/49923ed31d4ba4d41e245da96c318be7b6e91ac8) : better system of the parser and ast to have shorter (or more compact) dictionary result (-35.16% of size, with the example program).
 * 25/03/26, [see commit](https://github.com/KyleCie/turing-machine/commit/7aaeeffddcbcb251179a5a6b79278c280f35ed9b) : initial commit.
