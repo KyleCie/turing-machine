@@ -219,7 +219,9 @@ END
 
 * Python 3.8+
 
-just `dump` from json (for now).
+* `dump` from json.
+* `Callable` from typing.
+* `version_info` from sys.
 
 ---
 

@@ -22,6 +22,7 @@ from .astSystem import (
 from .lexerSystem import Lexer
 from .tokenSystem import TokenType, Token
 
+from sys import version_info
 from typing import Callable
 
 class Parser:
@@ -112,24 +113,41 @@ class Parser:
 
         return program
     
-    def __parse_statement(self) -> Statement | Literal | None:
+    if version_info >= (3, 10):
+        def __parse_statement(self) -> Statement | Literal | None:
 
-        match self.current_token.type: #type: ignore
+            match self.current_token.type: #type: ignore
 
-            case TokenType.VALUES:
+                case TokenType.VALUES:
+                    return self.__parse_values_statement()
+                
+                case TokenType.STATE:
+                    return self.__parse_state_statement()
+                
+                case TokenType.INITIAL:
+                    return self.__parse_initial_state_statement()
+                
+                case TokenType.CODE:
+                    return self.__parse_code_statement()
+                
+                case _:
+                    return self.__parse_expression()
+    else:
+        def __parse_statement(self) -> Statement | Literal | None:
+
+            if self.current_token.type == TokenType.VALUES: #type: ignore
                 return self.__parse_values_statement()
             
-            case TokenType.STATE:
+            if self.current_token.type == TokenType.STATE: #type: ignore
                 return self.__parse_state_statement()
             
-            case TokenType.INITIAL:
+            if self.current_token.type == TokenType.INITIAL: #type: ignore
                 return self.__parse_initial_state_statement()
             
-            case TokenType.CODE:
+            if self.current_token.type == TokenType.CODE: #type: ignore
                 return self.__parse_code_statement()
             
-            case _:
-                return self.__parse_expression()
+            return self.__parse_expression()
 
     def __parse_values_statement(self) -> ValuesStatement | None:
 
