@@ -1,5 +1,7 @@
 from .tokenSystem import Token, TokenType, lookup_ident
+
 from typing import Any
+from sys import version_info
 
 class Lexer:
     
@@ -76,44 +78,82 @@ class Lexer:
 
         return self.source[start:self.position]
 
-    def next_token(self) -> Token | None:
+    if version_info >= (3, 10):
+        def next_token(self) -> Token | None:
 
-        token: Token | None = None
-        
-        self.__skip_spaces()
-
-        match self.current_char:
+            token: Token | None = None
             
-            case ':':
-                token = self.__new_token(TokenType.COLON, self.current_char)
+            self.__skip_spaces()
 
-            case ',':
-                token = self.__new_token(TokenType.COMMA, self.current_char)
+            match self.current_char:
+                
+                case ':':
+                    token = self.__new_token(TokenType.COLON, self.current_char)
 
-            case '_':
-                token = self.__new_token(TokenType.NONE, self.current_char)
+                case ',':
+                    token = self.__new_token(TokenType.COMMA, self.current_char)
 
-            case '§':
+                case '_':
+                    token = self.__new_token(TokenType.NONE, self.current_char)
+
+                case '§':
+                    while self.current_char != "\n" and self.current_char is not None:
+                        self.__read_char()
+                    
+                    self.__read_char()
+                    return self.next_token()
+
+                case '\n':
+                    token = self.__new_token(TokenType.EOL, "\\n")
+
+                case None:
+                    token = self.__new_token(TokenType.EOF, '')
+                
+                case _:
+                    if self.__is_char(self.current_char):
+                        literal = self.__read_identifier()
+                        token_type = lookup_ident(literal)
+                        token = self.__new_token(token_type, literal)
+                        return token
+                    else:
+                        token = self.__new_token(TokenType.ILLEGAL, self.current_char)
+
+            self.__read_char()
+            return token
+    else:
+        def next_token(self) -> Token | None:
+            
+            self.__skip_spaces()
+
+            if self.current_char == ':':
+                return self.__new_token(TokenType.COLON, self.current_char)
+
+            if self.current_char == ',':
+               return self.__new_token(TokenType.COMMA, self.current_char)
+
+            if self.current_char == '_':
+                return self.__new_token(TokenType.NONE, self.current_char)
+
+            if self.current_char == '§':
                 while self.current_char != "\n" and self.current_char is not None:
                     self.__read_char()
                 
                 self.__read_char()
                 return self.next_token()
 
-            case '\n':
-                token = self.__new_token(TokenType.EOL, "\\n")
+            if self.current_char == '\n':
+                return self.__new_token(TokenType.EOL, "\\n")
 
-            case None:
-                token = self.__new_token(TokenType.EOF, '')
+            if self.current_char == None:
+                return self.__new_token(TokenType.EOF, '')
             
-            case _:
-                if self.__is_char(self.current_char):
-                    literal = self.__read_identifier()
-                    token_type = lookup_ident(literal)
-                    token = self.__new_token(token_type, literal)
-                    return token
-                else:
-                    token = self.__new_token(TokenType.ILLEGAL, self.current_char)
+            if self.__is_char(self.current_char):
+                literal = self.__read_identifier()
+                token_type = lookup_ident(literal)
+                token = self.__new_token(token_type, literal)
+                return token
+            else:
+                token = self.__new_token(TokenType.ILLEGAL, self.current_char)
 
-        self.__read_char()
-        return token
+            self.__read_char()
+            return None

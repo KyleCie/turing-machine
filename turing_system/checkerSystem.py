@@ -40,6 +40,8 @@ from .errorsSystem import (
 
 )
 
+from sys import version_info
+
 class Checker:
 
     def __init__(self, program: Program) -> None:
@@ -194,28 +196,88 @@ class Checker:
         print(f"> {self.values_in_state}")
         print(f"> {self.states_in_state}")
 
-    def __check_literals_command(self, command: dict, n: int) -> None:
+    if version_info >= (3, 10):
+        def __check_literals_command(self, command: dict, n: int) -> None:
 
-        type_com = command.get("type", None)
-        value_com = command.get("value", None)
+            type_com = command.get("type", None)
+            value_com = command.get("value", None)
 
-        if type_com is None:
-            self.errors.append(CommandError(
-                "Unable to get the type of literal in the command !"
-            ))
+            if type_com is None:
+                self.errors.append(CommandError(
+                    "Unable to get the type of literal in the command !"
+                ))
 
-            return None
+                return None
 
-        if value_com is None:
-            self.errors.append(CommandError(
-                "Unable to get the type of literal in the command !"
-            ))
+            if value_com is None:
+                self.errors.append(CommandError(
+                    "Unable to get the type of literal in the command !"
+                ))
 
-            return None
+                return None
 
-        match n:
-            
-            case 0 | 1:
+            match n:
+                
+                case 0 | 1:
+
+                    if (type_com == NodeType.NoneLiteral.value or
+                        type_com == NodeType.StopLiteral.value and n == 1
+                        ):
+                        return None
+
+                    if type_com == NodeType.IdentifierLiteral.value:
+                        if value_com not in self.known_values:
+                            self.errors.append(ValuesError(
+                                f"{value_com} was never initiated and is used in a command !"
+                            ))
+                        elif n == 0:
+                            self.values_in_state.add(value_com)
+
+                    else:
+                        self.errors.append(ValuesError(
+                            f"{type_com} is in a command !"
+                        ))
+
+                case 2:
+                    if type_com not in (NodeType.IdentifierLiteral.value,
+                                        NodeType.NoneLiteral.value):
+                        self.errors.append(CommandError(
+                            f"{type_com} is not a identifier in a command !"
+                        ))
+                    else:
+                        self.states_in_state.add(value_com)
+
+                case 3:
+                    if type_com != NodeType.DirectionLiteral.value:
+                        self.errors.append(CommandError(
+                            f"{type_com} is not a direction in a command !"
+                        ))
+
+                case _:
+                    self.errors.append(CommandError(
+                        "Error with the length of the command !"
+                    ))
+    else:
+        def __check_literals_command(self, command: dict, n: int) -> None:
+
+            type_com = command.get("type", None)
+            value_com = command.get("value", None)
+
+            if type_com is None:
+                self.errors.append(CommandError(
+                    "Unable to get the type of literal in the command !"
+                ))
+
+                return None
+
+            if value_com is None:
+                self.errors.append(CommandError(
+                    "Unable to get the type of literal in the command !"
+                ))
+
+                return None
+                
+            if n == 0 or n == 1:
 
                 if (type_com == NodeType.NoneLiteral.value or
                     type_com == NodeType.StopLiteral.value and n == 1
@@ -235,7 +297,7 @@ class Checker:
                         f"{type_com} is in a command !"
                     ))
 
-            case 2:
+            elif n == 2:
                 if type_com not in (NodeType.IdentifierLiteral.value,
                                     NodeType.NoneLiteral.value):
                     self.errors.append(CommandError(
@@ -244,13 +306,13 @@ class Checker:
                 else:
                     self.states_in_state.add(value_com)
 
-            case 3:
+            elif n == 3:
                 if type_com != NodeType.DirectionLiteral.value:
                     self.errors.append(CommandError(
                         f"{type_com} is not a direction in a command !"
                     ))
 
-            case _:
+            else:
                 self.errors.append(CommandError(
                     "Error with the length of the command !"
                 ))
