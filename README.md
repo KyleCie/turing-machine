@@ -261,7 +261,7 @@ Your machine does not reach a `STOP` condition.
 
 ## Updates
 
-
+- 03/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/d7f9eb16604c26d4bf370989c8b7766a3f6216df) : completly added the support for python's language where there are no support for match / case, for all files.
 - 03/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/48826700a684036219f8bc567ac3eddabf86c0cd) : added a first version of the checker system, and find many types errors (like values, name of states, and so on ...).
 - 26/03/26, [see commit](https://github.com/KyleCie/turing-machine/commit/42ff5740a21e483953ce059d4b7e5baddd3857c3) : added a checking python's version for the match / case system (else it use if statements).
 - 25/03/26, [see commit](https://github.com/KyleCie/turing-machine/commit/8d46db319339a12e4f629eb5efd36cb2175746ec) : fixing some typos in the code, and added more checks while parsing.
