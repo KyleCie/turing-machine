@@ -1,6 +1,7 @@
 
 from turing_system.lexerSystem import Lexer
 from turing_system.parserSystem import Parser
+from turing_system.checkerSystem import Checker
 from json import dump
 
 def main(fichier: str):
@@ -28,6 +29,16 @@ def main(fichier: str):
     with open("new_result.json", mode="w", encoding="utf-8") as f:
         dump(program.json(), f, indent=2)
 
+    checker = Checker(program)
+    checker.check_program()
+
+    print("\n\nERRORS :")
+    for err in checker.errors:
+        print(f"-> {err.json()}")
+    else:
+        print("None.")
+
+
 if __name__ == "__main__":
-    NOM_DE_FICHIER = "program.txt"
+    NOM_DE_FICHIER = "test_program.txt"
     main(NOM_DE_FICHIER)

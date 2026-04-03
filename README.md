@@ -8,9 +8,9 @@ This project is a **Turing Machine emulator** implemented in Python, featuring a
 
 It simulates the classical mathematical model:
 
-* Infinite tape (both directions)
-* Read/write head
-* State-based transitions
+- Infinite tape (both directions)
+- Read/write head
+- State-based transitions
 
 The goal is to provide a **simple but flexible environment** to experiment with computation theory.
 
@@ -18,12 +18,12 @@ The goal is to provide a **simple but flexible environment** to experiment with 
 
 ## Features
 
-* Custom DSL for machine definition
-* Infinite tape (auto-expands with `_`)
-* Multi-state support
-* Deterministic transitions
-* STOP condition handling
-* Easy-to-read configuration format
+- Custom DSL for machine definition
+- Infinite tape (auto-expands with `_`)
+- Multi-state support
+- Deterministic transitions
+- STOP condition handling
+- Easy-to-read configuration format
 
 ---
 
@@ -33,14 +33,19 @@ The goal is to provide a **simple but flexible environment** to experiment with 
 turing-machine/
 │
 ├── main.py                   # Entry point
-├── program.txt               # DSL code example 
+├── program.txt               # DSL code example
 ├── result.json               # result from the program.txt
+├── test_program.txt          # DSL code error example
+├── new_result.json           # result from the test_program.txt
+│
 ├── turing_system
 ├──── astSystem.py            # formatting system
 ├──── lexerSystem.py          # transform file to tokens
 ├──── parserSystem.py         # transform tokens to usable informations
 ├──── tokenSystem.py          # usable block for the DSL and the system
-├──── examples/
+├──── checkerSystem.py        # check the result of the parser
+├──── errorsSystem.py         # errors formatting system
+│
 ├── LICENSE
 └── README.md
 ```
@@ -62,6 +67,7 @@ python main.py
 ```bash
 python main.py
 ```
+
 ---
 
 ## Configuration File Format
@@ -81,6 +87,7 @@ END
 ```
 
 the values can be in list format (like the example) or in a vertical list (each line = a symbol)
+
 ---
 
 ### 2. Initial State
@@ -140,10 +147,10 @@ Example:
 
 Meaning:
 
-* If current cell = `0`
-* Write `1` in the cell
-* Move to state `e2`
-* Move head left
+- If current cell = `0`
+- Write `1` in the cell
+- Move to state `e2`
+- Move head left
 
 ---
 
@@ -161,7 +168,6 @@ Example:
 
 Stops execution when `10` is read.
 
-
 ### bonus:
 
 you can add comments by starting it with '§'
@@ -170,10 +176,10 @@ you can add comments by starting it with '§'
 
 ## Tape Behavior
 
-* The tape is **infinite in both directions** (to the computer limit)
-* Uninitialized cells contain `_`
-* The head starts at the **first cell**
-* Moving beyond bounds automatically extends the tape
+- The tape is **infinite in both directions** (to the computer limit)
+- Uninitialized cells contain `_`
+- The head starts at the **first cell**
+- Moving beyond bounds automatically extends the tape
 
 ---
 
@@ -182,10 +188,10 @@ you can add comments by starting it with '§'
 1. Read symbol under the head
 2. Find matching transition in current state
 3. Apply:
+   - Write symbol (if defined)
+   - Move head (`left` / `right`)
+   - Change state
 
-   * Write symbol (if defined)
-   * Move head (`left` / `right`)
-   * Change state
 4. Repeat until `STOP`
 
 ---
@@ -217,15 +223,15 @@ END
 
 ## Dependencies
 
-* Python 3.8+
+- Python 3.8+
 
-* `dump` from json.
-* `Callable` from typing.
-* `version_info` from sys.
+- `dump` from json.
+- `Callable` from typing.
+- `version_info` from sys.
 
 ---
 
-##  Troubleshooting
+## Troubleshooting
 
 ### No transition found
 
@@ -237,31 +243,32 @@ Your machine does not reach a `STOP` condition.
 
 ### Parsing errors
 
-* Missing `END`
-* Incorrect commas
-* Invalid state names
-* and so on
+- Missing `END`
+- Incorrect commas
+- Invalid state names
+- and so on
+
 ---
 
 ## Future Improvements
 
-* the Turing machine in itself
-* Tape visualization
-* Breakpoints
-* GUI interface
+- the Turing machine in itself
+- Tape visualization
+- Breakpoints
+- GUI interface
 
 ---
 
 ## Updates
 
-* 26/05/26, [see commit](https://github.com/KyleCie/turing-machine/commit/42ff5740a21e483953ce059d4b7e5baddd3857c3) : added a checking python's version for the match / case system (else it use if statements).
-* 25/03/26, [see commit](https://github.com/KyleCie/turing-machine/commit/8d46db319339a12e4f629eb5efd36cb2175746ec) : fixing some typos in the code, and added more checks while parsing.
-* 25/03/26, [see commit](https://github.com/KyleCie/turing-machine/commit/49923ed31d4ba4d41e245da96c318be7b6e91ac8) : better system of the parser and ast to have shorter (or more compact) dictionary result (-35.16% of size, with the example program).
-* 25/03/26, [see commit](https://github.com/KyleCie/turing-machine/commit/7aaeeffddcbcb251179a5a6b79278c280f35ed9b) : initial commit.
+- 26/05/26, [see commit](https://github.com/KyleCie/turing-machine/commit/42ff5740a21e483953ce059d4b7e5baddd3857c3) : added a checking python's version for the match / case system (else it use if statements).
+- 25/03/26, [see commit](https://github.com/KyleCie/turing-machine/commit/8d46db319339a12e4f629eb5efd36cb2175746ec) : fixing some typos in the code, and added more checks while parsing.
+- 25/03/26, [see commit](https://github.com/KyleCie/turing-machine/commit/49923ed31d4ba4d41e245da96c318be7b6e91ac8) : better system of the parser and ast to have shorter (or more compact) dictionary result (-35.16% of size, with the example program).
+- 25/03/26, [see commit](https://github.com/KyleCie/turing-machine/commit/7aaeeffddcbcb251179a5a6b79278c280f35ed9b) : initial commit.
 
 ## Contributors
 
-* creator [KyleCie]
+- creator [KyleCie]
 
 ---
 

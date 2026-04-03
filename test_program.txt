@@ -1,0 +1,13 @@
+values:
+    0, 1
+END
+
+initial state e1:
+    _, 1, e2, left
+    0, STOP
+    1, 0, e1, left
+END
+
+code:
+    _, _,
+END

@@ -12,18 +12,6 @@
           {
             "type": "IdentifierLiteral",
             "value": "1"
-          },
-          {
-            "type": "IdentifierLiteral",
-            "value": "10"
-          },
-          {
-            "type": "IdentifierLiteral",
-            "value": "12"
-          },
-          {
-            "type": "IdentifierLiteral",
-            "value": "14"
           }
         ]
       }
@@ -44,27 +32,6 @@
                 "value": "_"
               },
               {
-                "type": "NoneLiteral",
-                "value": "_"
-              },
-              {
-                "type": "IdentifierLiteral",
-                "value": "e1"
-              },
-              {
-                "type": "DirectionLiteral",
-                "value": "right"
-              }
-            ]
-          },
-          {
-            "type": "CommandStatement",
-            "statements": [
-              {
-                "type": "IdentifierLiteral",
-                "value": "0"
-              },
-              {
                 "type": "IdentifierLiteral",
                 "value": "1"
               },
@@ -83,31 +50,7 @@
             "statements": [
               {
                 "type": "IdentifierLiteral",
-                "value": "10"
-              },
-              {
-                "type": "StopLiteral",
-                "value": "STOP"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "StateStatement": {
-        "type": "StateStatement",
-        "name": {
-          "type": "StateLiteral",
-          "value": "e2"
-        },
-        "commands": [
-          {
-            "type": "CommandStatement",
-            "statements": [
-              {
-                "type": "IdentifierLiteral",
-                "value": "12"
+                "value": "0"
               },
               {
                 "type": "StopLiteral",
@@ -120,11 +63,11 @@
             "statements": [
               {
                 "type": "IdentifierLiteral",
-                "value": "10"
+                "value": "1"
               },
               {
                 "type": "IdentifierLiteral",
-                "value": "1"
+                "value": "0"
               },
               {
                 "type": "IdentifierLiteral",
@@ -132,7 +75,7 @@
               },
               {
                 "type": "DirectionLiteral",
-                "value": "right"
+                "value": "left"
               }
             ]
           }
@@ -143,14 +86,6 @@
       "CodeStatement": {
         "type": "CodeStatement",
         "ruban": [
-          {
-            "type": "NoneLiteral",
-            "value": "_"
-          },
-          {
-            "type": "NoneLiteral",
-            "value": "_"
-          },
           {
             "type": "NoneLiteral",
             "value": "_"
