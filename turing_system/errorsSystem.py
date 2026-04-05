@@ -61,24 +61,6 @@ class NoAllValuesUsedError(Exception):
 
         return None
 
-class NotAValueError(Exception):
-
-    def __init__(self, message: str) -> None:
-
-        self.message = message
-        super().__init__(self.message)
-
-        return None
-
-class InfiniteLoopError(Exception):
-
-    def __init__(self, message: str) -> None:
-
-        self.message = message
-        super().__init__(self.message)
-
-        return None
-
 class NoCodeError(Exception):
 
     def __init__(self, message: str) -> None:

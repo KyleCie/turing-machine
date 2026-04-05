@@ -24,14 +24,12 @@ from .errorsSystem import (
 
     NoValuesError,
     ValuesError,
-    NotAValueError,
 
     NameStateError,
     InitialStateError,
     NoCommandsError,
     CommandError,
     NoAllValuesUsedError,
-    InfiniteLoopError,
 
     NoCodeError,
     CodeError,
