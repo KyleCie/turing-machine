@@ -237,9 +237,56 @@ Python 3.10+
 
 ## Troubleshooting
 
-### No transition found
+### Checker Errors
 
-Ensure every possible symbol has a rule in the current state.
+#### No Values Error
+
+Occurs when no values are defined in the values section.
+
+#### Values Error
+
+Occurs when the values section is defined more than once.
+
+#### Initial State Error
+
+Occurs when more than one initial state is defined.
+
+#### Name State Error
+
+Occurs when multiple states share the same name.
+Also occurs when a state is referenced in commands but has never been defined.
+
+#### No Commands Error
+
+Occurs when a state has no commands.
+
+#### Command Error
+
+Occurs when:
+
+- A value is used more than once in the same state.
+- A value is used but has never been defined.
+- A value is not recognized as a valid state in the state part of the command.
+- A value is not recognized as a valid direction in the direction part of the command.
+
+#### No All Values Used Error
+
+Occurs when some values are not used in the state.
+
+#### No Code Error
+
+Occurs when there is no code section.
+
+#### Code Error
+
+Occurs when the code section is defined more than once.
+
+#### Tape Error
+
+Occurs when:
+
+- No tape is defined in the code section.
+- A value is used on the tape but has never been defined.
 
 ### Infinite loop
 
@@ -265,6 +312,7 @@ Your machine does not reach a `STOP` condition.
 
 ## Updates
 
+- 05/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/03840bd1d608d9831ef7faed95c935bb59f8b6ba): Reworked the entire checker system to integrate it into the parser, and introduced proper exceptions. [See discussion](https://github.com/KyleCie/turing-machine/issues/1)
 - 03/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/d7f9eb16604c26d4bf370989c8b7766a3f6216df) : completly added the support for python's language where there are no support for match / case, for all files.
 - 03/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/48826700a684036219f8bc567ac3eddabf86c0cd) : added a first version of the checker system, and find many types errors (like values, name of states, and so on ...).
 - 26/03/26, [see commit](https://github.com/KyleCie/turing-machine/commit/42ff5740a21e483953ce059d4b7e5baddd3857c3) : added a checking python's version for the match / case system (else it use if statements).

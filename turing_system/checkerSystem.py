@@ -27,7 +27,6 @@ from .errorsSystem import (
     NotAValueError,
 
     NameStateError,
-    StateError,
     InitialStateError,
     NoCommandsError,
     CommandError,
@@ -65,10 +64,6 @@ class Checker:
     def error_InitialState(self, reason: str) -> None:
 
         raise InitialStateError(reason)
-
-    def error_State(self, reason: str) -> None:
-
-        raise StateError(reason)
 
     def error_NameState(self, reason: str) -> None:
 
@@ -172,7 +167,7 @@ class Checker:
 
         if expr.value in self.states_defined:
             self.error_NameState(
-                f"state '{expr.value} is already defined elsewhere !'"
+                f"state '{expr.value} is already defined somewhere else !'"
             )
             return None
 
@@ -186,7 +181,7 @@ class Checker:
 
         if self.initial_state:
             self.error_InitialState(
-                f"There already a initial state defined, so {expr.value} can not be to !"
+                f"There already a initial state defined, so {expr.value} can not be too !"
             )
             return None
 
