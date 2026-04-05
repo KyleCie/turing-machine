@@ -19,7 +19,9 @@ from .astSystem import (
     NodeType,
 
 )
+
 from .lexerSystem import Lexer
+from .checkerSystem import Checker
 from .tokenSystem import TokenType, Token
 
 from sys import version_info
@@ -27,9 +29,10 @@ from typing import Callable
 
 class Parser:
 
-    def __init__(self, lexer: Lexer) -> None:
+    def __init__(self, source: str) -> None:
         
-        self.lexer: Lexer = lexer
+        self.lexer:   Lexer   = Lexer(source=source)
+        self.checker: Checker = Checker()
 
         # list of errors caught during parsing
         self.errors: list[str] = []
@@ -51,8 +54,6 @@ class Parser:
 
         self.current_token = self.peek_token
         self.peek_token    = self.lexer.next_token()
-
-        print(self.current_token)
 
         return None
 
@@ -111,6 +112,8 @@ class Parser:
 
         self.__next_token()
 
+        self.checker.last_check()
+
         return program
     
     if version_info >= (3, 10):
@@ -161,9 +164,11 @@ class Parser:
         if not self.__expect_current(TokenType.END):
             return None
 
+        self.checker.check_values(values_stmt)
+
         return values_stmt
 
-    def __parse_value_body_statement(self) -> list[Literal] | None:
+    def __parse_value_body_statement(self) -> list[IdentifierLiteral] | None:
 
         literals_stmt = []
 
@@ -200,6 +205,9 @@ class Parser:
         expr = self.__parse_expression()
 
         if expr is None:
+            self.checker.error_InitialState(
+                f"The initial state have no names !"
+            )
             return None
 
         if expr.type() == NodeType.IdentifierLiteral:
@@ -209,11 +217,10 @@ class Parser:
 
         body = self.__parse_body_state_statement()
 
-        if body is None:
-            return None
-
         if not self.__expect_current(TokenType.END):
             return None
+
+        self.checker.check_initial_state(expr, body)
 
         return InitialStateStatement(expr, body)
 
@@ -225,6 +232,9 @@ class Parser:
         expr = self.__parse_expression()
 
         if expr is None:
+            self.checker.error_NameState(
+                f"there is no name for the state !"
+            )
             return None
 
         if expr.type() == NodeType.IdentifierLiteral:
@@ -234,11 +244,10 @@ class Parser:
 
         body = self.__parse_body_state_statement()
 
-        if body is None:
-            return None
-
         if not self.__expect_current(TokenType.END):
             return None
+
+        self.checker.check_state(expr, body)
 
         return StateStatement(expr, body)
 
@@ -286,11 +295,10 @@ class Parser:
             return None
         
         body = self.__parse_body_code_statement()
-
-        if body is None:
-            return None
         
         self.__next_token()
+
+        self.checker.check_code(body)
 
         return CodeStatement(body)
 

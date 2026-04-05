@@ -12,6 +12,8 @@ class Lexer:
         self.read_position: int =  0
         self.line_no:       int =  1
 
+        self.starting_pos: int  = 0
+
         self.in_a_comment: bool = False
         self.current_char: str | None = None
 

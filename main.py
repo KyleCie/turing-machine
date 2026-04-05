@@ -15,9 +15,7 @@ def main(fichier: str):
 
     print("####")
 
-    lexer = Lexer(source=text)
-    parser = Parser(lexer)
-
+    parser = Parser(source=text)
     program = parser.parse_program()
 
     if len(parser.errors) > 0:
@@ -28,15 +26,6 @@ def main(fichier: str):
 
     with open("new_result.json", mode="w", encoding="utf-8") as f:
         dump(program.json(), f, indent=2)
-
-    checker = Checker(program)
-    checker.check_program()
-
-    print("\n\nERRORS :")
-    for err in checker.errors:
-        print(f"-> {err.json()}")
-    else:
-        print("None.")
 
 
 if __name__ == "__main__":

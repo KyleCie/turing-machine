@@ -83,6 +83,72 @@
       }
     },
     {
+      "StateStatement": {
+        "type": "StateStatement",
+        "name": {
+          "type": "StateLiteral",
+          "value": "e2"
+        },
+        "commands": [
+          {
+            "type": "CommandStatement",
+            "statements": [
+              {
+                "type": "NoneLiteral",
+                "value": "_"
+              },
+              {
+                "type": "IdentifierLiteral",
+                "value": "1"
+              },
+              {
+                "type": "IdentifierLiteral",
+                "value": "e2"
+              },
+              {
+                "type": "DirectionLiteral",
+                "value": "l"
+              }
+            ]
+          },
+          {
+            "type": "CommandStatement",
+            "statements": [
+              {
+                "type": "IdentifierLiteral",
+                "value": "0"
+              },
+              {
+                "type": "IdentifierLiteral",
+                "value": "0"
+              },
+              {
+                "type": "NoneLiteral",
+                "value": "_"
+              },
+              {
+                "type": "DirectionLiteral",
+                "value": "l"
+              }
+            ]
+          },
+          {
+            "type": "CommandStatement",
+            "statements": [
+              {
+                "type": "IdentifierLiteral",
+                "value": "1"
+              },
+              {
+                "type": "StopLiteral",
+                "value": "STOP"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "CodeStatement": {
         "type": "CodeStatement",
         "ruban": [

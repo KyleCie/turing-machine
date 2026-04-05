@@ -39,6 +39,10 @@ class Statement(Node):
     pass
 
 class Literal(Node):
+
+    def __init__(self, value: str) -> None:
+        self.value = value
+
     pass
 
 class Program(Node):
@@ -167,7 +171,7 @@ class EndLiteral(Literal):
     
 class ValuesStatement(Statement):
 
-    def __init__(self, literals: list[Literal] | None = None) -> None:
+    def __init__(self, literals: list[IdentifierLiteral] | None = None) -> None:
         
         self.literals = literals if literals else []
         return None

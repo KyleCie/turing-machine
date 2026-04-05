@@ -22,341 +22,248 @@ from .astSystem import (
 
 from .errorsSystem import (
 
-    Error,
-
     NoValuesError,
     ValuesError,
     NotAValueError,
 
     NameStateError,
-    NoInitialStateError,
+    StateError,
+    InitialStateError,
     NoCommandsError,
     CommandError,
     NoAllValuesUsedError,
     InfiniteLoopError,
 
     NoCodeError,
+    CodeError,
     RubanError,
 
 )
 
-from sys import version_info
-
 class Checker:
 
-    def __init__(self, program: Program) -> None:
-        
-        self.program: list[Statement] = program.statements
-        self.errors: list[Error] = []
-        
-        self.known_values:    set[str] = set()
+    def __init__(self) -> None:
 
-        self.values_in_state: set[str] = set()
-        self.states_in_state: set[str] = set()
-        self.known_states:    set[str] = set()
+        self.values: list[str] = []
 
-        return None
+        self.names_states : set[str] = set()
+        self.states_defined: set[str] = set()
 
-    def __get_statement(self, node_type: NodeType) -> Statement | None:
-
-        for element in self.program:
-            if element.type() == node_type:
-                return element
+        self.initial_state: bool = False
+        self.code: bool          = False
 
         return None
 
-    def __get_all_statement(self, node_type: NodeType) -> list[Statement]:
+    def error_NoValues(self, reason: str) -> None:
 
-        result: list[Statement] = []
+        raise NoValuesError(reason)
 
-        for element in self.program:
-            if element.type() == node_type:
-                result.append(element)
+    def error_Values(self, reason: str) -> None:
 
-        return result
+        raise ValuesError(reason)
 
-    def check_program(self) -> bool:
-        """return True if errors else False"""
+    def error_InitialState(self, reason: str) -> None:
 
-        self.__check_values()
-        self.__check_initial_state()
-        self.__check_states()
-        self.__check_code()
+        raise InitialStateError(reason)
 
-        return self.errors != []
+    def error_State(self, reason: str) -> None:
+
+        raise StateError(reason)
+
+    def error_NameState(self, reason: str) -> None:
+
+        raise NameStateError(reason)
+
+    def error_NoCommands(self, reason: str) -> None:
+
+        raise NoCommandsError(reason)
+
+    def error_Command(self, reason: str) -> None:
+
+        raise CommandError(reason)
+
+    def error_NoAllValuesUsed(self, reason: str) -> None:
+
+        raise NoAllValuesUsedError(reason)
+
+    def error_NoCode(self, reason: str) -> None:
+
+        raise NoCodeError(reason)
+
+    def error_Code(self, reason: str) -> None:
+
+        raise CodeError(reason)
+
+    def error_Ruban(self, reason: str) -> None:
+
+        raise RubanError(reason)
+
+    def check_values(self, values_statement: ValuesStatement) -> None:
+
+        if self.values != []:
+            self.error_Values("The values part is already defined !")
+            return
+
+        raw_values = values_statement.literals
+
+        for raw_value in raw_values:
+            self.values.append(raw_value.value)
+
+        if self.values == []:
+            self.error_NoValues("There are no values in the values part of the code !")
+
+        return None
     
-    def __check_values(self) -> None:
+    def __check_body_state(self, body: list[CommandStatement], from_state: str) -> None:
 
-        stmt = self.__get_statement(NodeType.ValuesStatement)
+        values_defined: list[str] = []
 
-        if stmt is None:
-            self.errors.append(NoValuesError(
-                "There is no values at all !"
-                ))
-            
-            return None
-            
-        raw_values: list[dict] = stmt.json()["literals"]
+        for (index, command) in enumerate(body):
 
-        for raw_val in raw_values:
-            value = raw_val.get("value", None)
+            stmts = command.statements
 
-            if value is None:
-                self.errors.append(ValuesError(
-                    "Unable to get a value in the values !"
-                    ))
-                continue
-
-            self.known_values.add(value)
-
-    def __check_initial_state(self) -> None:
-
-        stmt = self.__get_statement(NodeType.InitialStateStatement)
-
-        if stmt is None:
-            self.errors.append(NoInitialStateError(
-                "There is no initiate state at all !"
-            ))
-
-            return None
-        
-        self.known_states.add(stmt.json()["name"]["value"])
-
-        self.__check_state(stmt)
-
-    def __check_states(self) -> None:
-        
-        stmts = self.__get_all_statement(NodeType.StateStatement)
-
-        for stmt in stmts:
-            self.__check_state(stmt)
-
-            state_name = stmt.json()["name"]["value"]
-
-            if state_name in self.known_states:
-                self.errors.append(NameStateError(
-                    f"{state_name} is already defined !"
-                ))
-
-            self.known_states.add(state_name)
-            print("> " + state_name)
-        
-        if self.values_in_state != self.known_values:
-            diffs = self.values_in_state - self.known_values
-            self.errors.append(ValuesError(
-                f"{diffs}, those values are used in states and are not initiated !"
-            ))
-
-        if self.states_in_state != self.known_states:
-            diffs = self.states_in_state - self.known_states
-            self.errors.append(ValuesError(
-                f"{diffs}, those states are used but are not defined !"
-            ))
-
-    def __check_state(self, stmt: Statement | None = None) -> None:
-
-        if stmt is None:
-            stmt = self.__get_statement(NodeType.StateStatement)
-
-            if stmt is None:
+            if stmts[0].value in values_defined:
+                self.error_Command(
+                    f"in {from_state} : {index}, value '{stmts[0].value}' is already defined !"
+                )
                 return None
 
-        commands: list[dict] | None = stmt.json().get("commands", None)
-
-        if commands is None:
-            self.errors.append(NoCommandsError(
-                "No commands in the initial state !"
-            ))
-
-            return None
-
-        self.values_in_state = set()
-        self.states_in_state = set()
-
-        for command in commands:
-            coms = command.get("statements", None)
-
-            if coms is None:
-                self.errors.append(CommandError(
-                    "Unable to get the command content !"
-                ))
-
-                continue
-
-            if not (2 <= len(coms) <= 4):
-                self.errors.append(CommandError(
-                    "Error with the length of the command !"
-                ))
-
-                continue
-
-            for idx, com in enumerate(coms):
-                self.__check_literals_command(com, idx)  
-
-        print(f"> {self.values_in_state}")
-        print(f"> {self.states_in_state}")
-
-    if version_info >= (3, 10):
-        def __check_literals_command(self, command: dict, n: int) -> None:
-
-            type_com = command.get("type", None)
-            value_com = command.get("value", None)
-
-            if type_com is None:
-                self.errors.append(CommandError(
-                    "Unable to get the type of literal in the command !"
-                ))
-
+            if stmts[0].value != "_" and stmts[0].value not in self.values:
+                self.error_Command(
+                    f"in {from_state} : {index}, value {stmts[0].value} was never defined in the values part !"
+                )
                 return None
 
-            if value_com is None:
-                self.errors.append(CommandError(
-                    "Unable to get the type of literal in the command !"
-                ))
+            values_defined.append(stmts[0].value)
 
+            if not (stmts[1].value == "STOP" or stmts[1].value == "_") and \
+                   (stmts[1].value not in self.values):
+                self.error_Command(
+                    f"in {from_state} : {index}, value {stmts[1].value} was never defined in the values part !"
+                )
                 return None
 
-            match n:
-                
-                case 0 | 1:
-
-                    if (type_com == NodeType.NoneLiteral.value or
-                        type_com == NodeType.StopLiteral.value and n == 1
-                        ):
-                        return None
-
-                    if type_com == NodeType.IdentifierLiteral.value:
-                        if value_com not in self.known_values:
-                            self.errors.append(ValuesError(
-                                f"{value_com} was never initiated and is used in a command !"
-                            ))
-                        elif n == 0:
-                            self.values_in_state.add(value_com)
-
-                    else:
-                        self.errors.append(ValuesError(
-                            f"{type_com} is in a command !"
-                        ))
-
-                case 2:
-                    if type_com not in (NodeType.IdentifierLiteral.value,
-                                        NodeType.NoneLiteral.value):
-                        self.errors.append(CommandError(
-                            f"{type_com} is not a identifier in a command !"
-                        ))
-                    else:
-                        self.states_in_state.add(value_com)
-
-                case 3:
-                    if type_com != NodeType.DirectionLiteral.value:
-                        self.errors.append(CommandError(
-                            f"{type_com} is not a direction in a command !"
-                        ))
-
-                case _:
-                    self.errors.append(CommandError(
-                        "Error with the length of the command !"
-                    ))
-    else:
-        def __check_literals_command(self, command: dict, n: int) -> None:
-
-            type_com = command.get("type", None)
-            value_com = command.get("value", None)
-
-            if type_com is None:
-                self.errors.append(CommandError(
-                    "Unable to get the type of literal in the command !"
-                ))
-
-                return None
-
-            if value_com is None:
-                self.errors.append(CommandError(
-                    "Unable to get the type of literal in the command !"
-                ))
-
-                return None
-                
-            if n == 0 or n == 1:
-
-                if (type_com == NodeType.NoneLiteral.value or
-                    type_com == NodeType.StopLiteral.value and n == 1
-                    ):
+            if stmts[1].value != "STOP":
+                if stmts[2].type() != NodeType.IdentifierLiteral and stmts[2].value != "_":
+                    self.error_Command(
+                        f"in {from_state} : {index}, '{stmts[2].value}' is not a state !"
+                    )
                     return None
 
-                if type_com == NodeType.IdentifierLiteral.value:
-                    if value_com not in self.known_values:
-                        self.errors.append(ValuesError(
-                            f"{value_com} was never initiated and is used in a command !"
-                        ))
-                    elif n == 0:
-                        self.values_in_state.add(value_com)
+                self.names_states.add(stmts[2].value)
 
-                else:
-                    self.errors.append(ValuesError(
-                        f"{type_com} is in a command !"
-                    ))
+                if stmts[3].type() != NodeType.DirectionLiteral:
+                    self.error_Command(
+                        f"in {from_state} : {index}, '{stmts[3].value}' is not a direction !"
+                    )
 
-            elif n == 2:
-                if type_com not in (NodeType.IdentifierLiteral.value,
-                                    NodeType.NoneLiteral.value):
-                    self.errors.append(CommandError(
-                        f"{type_com} is not a identifier in a command !"
-                    ))
-                else:
-                    self.states_in_state.add(value_com)
+        expected = set(self.values) | {"_"}
+        actual = set(values_defined)
 
-            elif n == 3:
-                if type_com != NodeType.DirectionLiteral.value:
-                    self.errors.append(CommandError(
-                        f"{type_com} is not a direction in a command !"
-                    ))
+        if actual != expected:
+            diffs = expected - actual
+            self.error_NoAllValuesUsed(
+                f"in {from_state}, {diffs} : those values are not defined !"
+            )
 
-            else:
-                self.errors.append(CommandError(
-                    "Error with the length of the command !"
-                ))
+        return None
 
-    def __check_code(self) -> None:
+    def __check_content_state(self, expr: StateLiteral, body: list[CommandStatement] | None) -> None:
 
-        stmt = self.__get_statement(NodeType.CodeStatement)
-
-        if stmt is None:
-            self.errors.append(NoCodeError(
-                "There is no code at all !"
-            ))
-
+        if expr.value in self.states_defined:
+            self.error_NameState(
+                f"state '{expr.value} is already defined elsewhere !'"
+            )
             return None
 
-        if self.known_values != []:
-            ruban: list[dict] = stmt.json()["ruban"]
+        if not body or body == []:
+            self.error_NoCommands(
+                f"There is no command in the initial state {expr.value} !"
+            )
+            return None
 
-            for case in ruban:
-                type_val = case.get("type", None)
+    def check_initial_state(self, expr: StateLiteral, body: list[CommandStatement] | None) -> None:
 
-                if type_val is None:
-                    self.errors.append(RubanError(
-                        "Unable to get a type of value in the ruban !"
-                    ))
-                
-                    continue
+        if self.initial_state:
+            self.error_InitialState(
+                f"There already a initial state defined, so {expr.value} can not be to !"
+            )
+            return None
 
-                if type_val == NodeType.NoneLiteral.value:
-                    continue
+        self.__check_content_state(expr, body)
 
-                if type_val == NodeType.IdentifierLiteral.value:
-                    value_val = case.get("value", None)
+        self.states_defined.add(expr.value)
 
-                    if value_val is None:
-                        self.errors.append(RubanError(
-                            "Unable to get a value in the ruban !"
-                        ))
+        self.__check_body_state(body, from_state=expr.value) #type: ignore
 
-                        continue
+    def check_state(self, expr: StateLiteral, body: list[CommandStatement] | None) -> None:
 
-                    if value_val in self.known_values:
-                        continue
-                    else:
-                        self.errors.append(NotAValueError(
-                            f"{value_val} was never initiated and is in the ruban !"
-                        ))
+        self.__check_content_state(expr, body)
+
+        self.states_defined.add(expr.value)
+
+        self.__check_body_state(body, from_state=expr.value) #type: ignore
+
+    def check_code(self, body: list[Literal] | None) -> None:
+
+        if self.code:
+            self.error_Code(
+                f"the code was already defined !"
+            )
+
+        self.code = True
+
+        if not body or body == []:
+            self.error_Ruban(
+                f"There is no ruban !"
+            )
+            return None
+        
+        for case in body:
+            value = case.value
+
+            if value == "_":
+                continue
+
+            if value not in self.values:
+                self.error_Ruban(
+                    f"{value} was never defined and is in the ruban !"
+                )
+                return None
+            
+        return None
+
+    def __check_if_states_good(self) -> None:
+
+        expected = self.names_states | {"_"}
+        actual = self.states_defined
+
+        undefined = (expected - actual) - {"_"}
+        if undefined:
+            self.error_NameState(
+                f"{undefined}, those states are used but were never defined!"
+            )
+
+        unused = (expected - actual) - {"_"}
+        if unused:
+            print(
+                f"WARNING !\n{unused}, those states are defined but never used!"
+            )
+
+        return None
+    
+    def __check_if_code_good(self) -> None:
+
+        if not self.code:
+            self.error_NoCode(
+                f"There is no code part !"
+            )
+
+        return None
+
+    def last_check(self) -> None:
+
+        self.__check_if_states_good()
+        self.__check_if_code_good()
+
+        return None

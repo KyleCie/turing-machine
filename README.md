@@ -223,11 +223,15 @@ END
 
 ## Dependencies
 
-- Python 3.8+
+Python 3.8+
 
-- `dump` from json.
-- `Callable` from typing.
-- `version_info` from sys.
+    * `dump` from json.
+    * `Callable` from typing.
+    * `version_info` from sys.
+
+Python 3.10+
+
+    * the use of match / case.
 
 ---
 

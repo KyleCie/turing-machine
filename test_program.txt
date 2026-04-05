@@ -8,6 +8,12 @@ initial state e1:
     1, 0, e1, left
 END
 
+state e2:
+    _, 1, e2, l
+    0, 0, _, l
+    1, STOP
+END
+
 code:
-    _, _,
+    _, 10
 END
