@@ -2,7 +2,7 @@
 
 ## Introduction
 
-> ⚠️ This project is not completly functioning, it's being actively programmed.
+> ⚠️ This project is not completly functioning, it's being actively programmed. (but the 'core' of the project should work now !)
 
 This project is a **Turing Machine emulator** implemented in Python, featuring a custom **domain-specific language (DSL)** for defining machines in a `.txt` file.
 
@@ -33,10 +33,6 @@ The goal is to provide a **simple but flexible environment** to experiment with 
 turing-machine/
 │
 ├── main.py                   # Entry point
-├── program.txt               # DSL code example
-├── result.json               # result from the program.txt
-├── test_program.txt          # DSL code error example
-├── new_result.json           # result from the test_program.txt
 │
 ├── turing_system
 ├──── astSystem.py            # formatting system
@@ -46,6 +42,14 @@ turing-machine/
 ├──── checkerSystem.py        # check the result of the parser
 ├──── errorsSystem.py         # errors formatting system
 │
+├── turing_machin
+├──── turingSystem.py         # the 'core' of the machin.
+├──── tapeSystem.py           # the tape (double-linked chain) system.
+│
+├── program examples
+├──── invert_A_and_B.txt      # example for a simple inverter system.
+│
+├── .gitignore
 ├── LICENSE
 └── README.md
 ```
@@ -178,7 +182,7 @@ you can add comments by starting it with '§'
 
 - The tape is **infinite in both directions** (to the computer limit)
 - Uninitialized cells contain `_`
-- The head starts at the **first cell**
+- The head starts at the **first cell** (the leftest one)
 - Moving beyond bounds automatically extends the tape
 
 ---
@@ -187,12 +191,11 @@ you can add comments by starting it with '§'
 
 1. Read symbol under the head
 2. Find matching transition in current state
-3. Apply:
-   - Write symbol (if defined)
+3. See if the machin have to stop.
+4. Apply:
+   - Write symbol (if different than the case of the tape)
    - Move head (`left` / `right`)
-   - Change state
-
-4. Repeat until `STOP`
+   - Change state (if have to)
 
 ---
 
@@ -303,8 +306,6 @@ Your machine does not reach a `STOP` condition.
 
 ## Future Improvements
 
-- the Turing machine in itself
-- Tape visualization
 - Breakpoints
 - GUI interface
 
@@ -312,6 +313,7 @@ Your machine does not reach a `STOP` condition.
 
 ## Updates
 
+- 06/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/d7c0e38eea4bfdaa022c1d8ebe5b868ec27d99b3) : the first version of the Turing machin was created, it use a double-linked chain method, and you can visualised by printing the tape. Also added a .lower() to the lexer when adding a keywords for easier uses of thoses values.
 - 05/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/03840bd1d608d9831ef7faed95c935bb59f8b6ba): Reworked the entire checker system to integrate it into the parser, and introduced proper exceptions. [See discussion](https://github.com/KyleCie/turing-machine/issues/1)
 - 03/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/d7f9eb16604c26d4bf370989c8b7766a3f6216df) : completly added the support for python's language where there are no support for match / case, for all files.
 - 03/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/48826700a684036219f8bc567ac3eddabf86c0cd) : added a first version of the checker system, and find many types errors (like values, name of states, and so on ...).

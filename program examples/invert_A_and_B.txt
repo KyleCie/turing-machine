@@ -1,0 +1,22 @@
+§ this program changes all the A into B and B into A.
+
+values:
+    A, B
+END
+
+initial state e1:
+    A, STOP
+    B, STOP
+    _, _, e2, right
+END
+
+state e2:
+    A, B, e2, right
+    B, A, e2, right
+    _, STOP
+END
+
+code:
+    _, B, A, B, A, B, _
+§   ^- always start at the left of the tape.
+END
