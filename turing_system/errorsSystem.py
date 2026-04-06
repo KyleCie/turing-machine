@@ -79,7 +79,7 @@ class CodeError(Exception):
 
         return None
 
-class RubanError(Exception):
+class TapeError(Exception):
 
     def __init__(self, message: str) -> None:
 

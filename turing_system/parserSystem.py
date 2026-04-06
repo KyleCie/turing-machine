@@ -304,7 +304,7 @@ class Parser:
 
     def __parse_body_code_statement(self) -> list[Literal] | None:
 
-        ruban_stmts: list[Literal] = []
+        tape_stmts: list[Literal] = []
 
         if not self.__expect_current(TokenType.COLON):
             return None
@@ -319,11 +319,11 @@ class Parser:
             stmt = self.__parse_statement()
 
             if stmt is not None:
-                ruban_stmts.append(stmt) #type: ignore
+                tape_stmts.append(stmt) #type: ignore
 
             self.__next_token()
 
-        return ruban_stmts
+        return tape_stmts
     
     def __parse_expression(self):
 

@@ -11,7 +11,7 @@ class NodeType(Enum):
     InitialStateStatement = "InitialStateStatement"
     CommandStatement      = "CommandStatement"
     CodeStatement         = "CodeStatement"
-    RubanStatement        = "RubanStatement"
+    TapeStatement         = "TapeStatement"
     BlockStatement        = "BlockStatement"
     ExpressionStatement   = "ExpressionStatement"
 
@@ -246,9 +246,9 @@ class InitialStateStatement(Statement):
         }
 
 class CodeStatement(Statement):
-    def __init__(self, ruban: list[Literal] | None = None) -> None:
+    def __init__(self, tape: list[Literal] | None = None) -> None:
         
-        self.ruban: list[Literal] = ruban if ruban else []
+        self.tape: list[Literal] = tape if tape else []
         return None
 
     def type(self) -> NodeType:
@@ -259,5 +259,5 @@ class CodeStatement(Statement):
 
         return {
             "type": self.type().value,
-            "ruban": [case.json() for case in self.ruban]
+            "tape": [case.json() for case in self.tape]
         }

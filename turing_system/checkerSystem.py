@@ -33,7 +33,7 @@ from .errorsSystem import (
 
     NoCodeError,
     CodeError,
-    RubanError,
+    TapeError,
 
 )
 
@@ -87,9 +87,9 @@ class Checker:
 
         raise CodeError(reason)
 
-    def error_Ruban(self, reason: str) -> None:
+    def error_Tape(self, reason: str) -> None:
 
-        raise RubanError(reason)
+        raise TapeError(reason)
 
     def check_values(self, values_statement: ValuesStatement) -> None:
 
@@ -207,8 +207,8 @@ class Checker:
         self.code = True
 
         if not body or body == []:
-            self.error_Ruban(
-                f"There is no ruban !"
+            self.error_Tape(
+                f"There is no tape !"
             )
             return None
         
@@ -219,8 +219,8 @@ class Checker:
                 continue
 
             if value not in self.values:
-                self.error_Ruban(
-                    f"{value} was never defined and is in the ruban !"
+                self.error_Tape(
+                    f"{value} was never defined and is in the tape !"
                 )
                 return None
             
