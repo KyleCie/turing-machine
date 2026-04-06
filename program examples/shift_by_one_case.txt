@@ -1,0 +1,40 @@
+§ this program shift the binary number by one case to the rigt.
+
+values:
+    0, 1
+END
+
+§ waiting to get a value.
+initial state e:
+    _, _, e,  right
+    0, _, e0, right
+    1, _, e1, right
+END
+
+§ old value was 0, so we have to write 0 and write the value at the next case.
+state e0:
+    _, 0, done, right
+    0, 0, e0,   right
+    1, 0, e1,   right
+END
+
+§ old value was 1, so we have to write 1 and write the value at the next case.
+state e1:
+    _, 1, done, right
+    0, 1, e0,   right
+    1, 1, e1,   right
+END
+
+§ no more value to write.
+state done:
+    _, STOP
+    0, STOP
+    1, STOP
+END
+
+code:
+    _, 1, 0, 1, 0, _
+
+§   should transform into:
+§   _, _, 1, 0, 1, 0, _
+END

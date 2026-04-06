@@ -48,6 +48,9 @@ turing-machine/
 │
 ├── program examples
 ├──── invert_A_and_B.txt      # example for a simple inverter system.
+├──── is_a_multiple_of_2.txt  # example for a program that add a 'Y' or 'N' at the end of the number to say if the number is indeed a multiple of 2.
+├──── shift_by_one_case.txt   # example for a program that shift one case to the right the binary number in the tape.
+├──── binary_increment.txt    # example for a program that increment by 1 a binary number in the tape.
 │
 ├── .gitignore
 ├── LICENSE

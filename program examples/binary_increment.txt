@@ -1,0 +1,55 @@
+§ add a 1 into the binary number.
+
+values:
+    0, 1
+END
+
+§ we go the end (so the right).
+initial state e:
+    0, 0, e,  right
+    1, 1, e,  right
+
+    § we are at the end, so go add 1.
+    _, _, e0, left
+END
+
+§ we have not seen a 1 first, so we can transform into 1 and done.
+state e0:
+    0, 1, done, left
+    1, 1, e1    left
+
+    § should no be possible.
+    _, STOP
+
+END
+
+§ we have seen 1, so we have to find a 0.
+state e1:
+    0, 1, replace, right
+    1, 1, e1,      left
+    _, 1, replace, right
+END
+
+§ we have found a 0, we have replaced to 1, so we have to replace all the 1 into 0 (increment)
+state replace:
+    § should not be possible.
+    0, STOP
+    _, STOP
+
+    1, 0, replace, right
+END
+
+state done:
+    _, STOP
+    0, STOP
+    1, STOP
+END
+
+code:
+    § 1011: 11
+    1, 0, 1, 1
+
+§   should be:
+§   1, 1, 0, 0 (1100: 12)
+
+END

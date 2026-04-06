@@ -1,0 +1,65 @@
+§ this program add a 'Y' or 'N' if the number in the tape is a multiple of 2 or not.
+
+values:
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, Y, N
+END
+
+§state that will write 'Y' if can do it.
+initial state yes:
+    § should not be possible.
+    Y, STOP
+    N, STOP
+
+    _, Y, done, right
+    0, 0, yes, right
+    1, 1, no,  right
+    2, 2, yes, right
+    3, 3, no,  right
+    4, 4, yes, right
+    5, 5, no,  right
+    6, 6, yes, right
+    7, 7, no,  right
+    8, 8, yes, right
+    9, 9, no,  right
+END
+
+§ state that will write 'N' if can do it.
+state no:
+    § should not be possible.
+    Y, STOP
+    N, STOP
+
+    _, N, done, right
+    0, 0, yes, right
+    1, 1, no,  right
+    2, 2, yes, right
+    3, 3, no,  right
+    4, 4, yes, right
+    5, 5, no,  right
+    6, 6, yes, right
+    7, 7, no,  right
+    8, 8, yes, right
+    9, 9, no,  right
+END
+
+§ to stop this tragedy.
+state done:
+    _, STOP
+    0, STOP
+    1, STOP
+    2, STOP
+    3, STOP
+    4, STOP
+    5, STOP
+    6, STOP
+    7, STOP
+    8, STOP
+    9, STOP
+    Y, STOP
+    N, STOP
+END
+
+code:
+    § should add a 'Y' at the end, because 1789210028 is a multiple of 2.
+    1, 7, 8, 9, 2, 1, 0, 0 2, 8, _
+END
