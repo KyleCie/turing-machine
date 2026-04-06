@@ -15,5 +15,5 @@ state e2:
 END
 
 code:
-    _, 10
+    _, 1, 0, _
 END

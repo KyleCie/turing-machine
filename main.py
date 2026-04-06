@@ -1,19 +1,11 @@
-
-from turing_system.lexerSystem import Lexer
 from turing_system.parserSystem import Parser
-from turing_system.checkerSystem import Checker
+from turing_machine.turingSystem import Turing
+
 from json import dump
 
 def main(fichier: str):
     with open(fichier, encoding="utf-8") as f:
         text = f.read()
-
-    debug_lex = Lexer(source=text)
-    
-    while debug_lex.current_char is not None:
-      print(debug_lex.next_token())
-
-    print("####")
 
     parser = Parser(source=text)
     program = parser.parse_program()
@@ -22,12 +14,18 @@ def main(fichier: str):
         for err in parser.errors:
             print(err)
 
-    print(program.json())
-
-    with open("new_result.json", mode="w", encoding="utf-8") as f:
+    with open("result_example.json", mode="w", encoding="utf-8") as f:
         dump(program.json(), f, indent=2)
 
+    machin = Turing(program)
+    print(machin.tape)
+    result = machin.run()
+
+    while not result:
+        result = machin.run()
+
+    print(machin.tape)
 
 if __name__ == "__main__":
-    NOM_DE_FICHIER = "test_program.txt"
+    NOM_DE_FICHIER = "program_example.txt"
     main(NOM_DE_FICHIER)

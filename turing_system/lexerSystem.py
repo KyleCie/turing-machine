@@ -152,7 +152,7 @@ class Lexer:
             if self.__is_char(self.current_char):
                 literal = self.__read_identifier()
                 token_type = lookup_ident(literal)
-                token = self.__new_token(token_type, literal)
+                token = self.__new_token(token_type, literal.lower())
                 return token
             else:
                 token = self.__new_token(TokenType.ILLEGAL, self.current_char)

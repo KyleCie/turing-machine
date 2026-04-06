@@ -7,11 +7,11 @@
         "literals": [
           {
             "type": "IdentifierLiteral",
-            "value": "0"
+            "value": "A"
           },
           {
             "type": "IdentifierLiteral",
-            "value": "1"
+            "value": "B"
           }
         ]
       }
@@ -28,29 +28,8 @@
             "type": "CommandStatement",
             "statements": [
               {
-                "type": "NoneLiteral",
-                "value": "_"
-              },
-              {
                 "type": "IdentifierLiteral",
-                "value": "1"
-              },
-              {
-                "type": "IdentifierLiteral",
-                "value": "e2"
-              },
-              {
-                "type": "DirectionLiteral",
-                "value": "left"
-              }
-            ]
-          },
-          {
-            "type": "CommandStatement",
-            "statements": [
-              {
-                "type": "IdentifierLiteral",
-                "value": "0"
+                "value": "A"
               },
               {
                 "type": "StopLiteral",
@@ -63,19 +42,32 @@
             "statements": [
               {
                 "type": "IdentifierLiteral",
-                "value": "1"
+                "value": "B"
+              },
+              {
+                "type": "StopLiteral",
+                "value": "STOP"
+              }
+            ]
+          },
+          {
+            "type": "CommandStatement",
+            "statements": [
+              {
+                "type": "NoneLiteral",
+                "value": "_"
+              },
+              {
+                "type": "NoneLiteral",
+                "value": "_"
               },
               {
                 "type": "IdentifierLiteral",
-                "value": "0"
-              },
-              {
-                "type": "IdentifierLiteral",
-                "value": "e1"
+                "value": "e2"
               },
               {
                 "type": "DirectionLiteral",
-                "value": "left"
+                "value": "right"
               }
             ]
           }
@@ -94,12 +86,33 @@
             "type": "CommandStatement",
             "statements": [
               {
-                "type": "NoneLiteral",
-                "value": "_"
+                "type": "IdentifierLiteral",
+                "value": "A"
               },
               {
                 "type": "IdentifierLiteral",
-                "value": "1"
+                "value": "B"
+              },
+              {
+                "type": "IdentifierLiteral",
+                "value": "e1"
+              },
+              {
+                "type": "DirectionLiteral",
+                "value": "right"
+              }
+            ]
+          },
+          {
+            "type": "CommandStatement",
+            "statements": [
+              {
+                "type": "IdentifierLiteral",
+                "value": "B"
+              },
+              {
+                "type": "IdentifierLiteral",
+                "value": "A"
               },
               {
                 "type": "IdentifierLiteral",
@@ -107,37 +120,16 @@
               },
               {
                 "type": "DirectionLiteral",
-                "value": "l"
+                "value": "right"
               }
             ]
           },
           {
             "type": "CommandStatement",
             "statements": [
-              {
-                "type": "IdentifierLiteral",
-                "value": "0"
-              },
-              {
-                "type": "IdentifierLiteral",
-                "value": "0"
-              },
               {
                 "type": "NoneLiteral",
                 "value": "_"
-              },
-              {
-                "type": "DirectionLiteral",
-                "value": "l"
-              }
-            ]
-          },
-          {
-            "type": "CommandStatement",
-            "statements": [
-              {
-                "type": "IdentifierLiteral",
-                "value": "1"
               },
               {
                 "type": "StopLiteral",
@@ -158,11 +150,15 @@
           },
           {
             "type": "IdentifierLiteral",
-            "value": "1"
+            "value": "B"
           },
           {
             "type": "IdentifierLiteral",
-            "value": "0"
+            "value": "B"
+          },
+          {
+            "type": "IdentifierLiteral",
+            "value": "B"
           },
           {
             "type": "NoneLiteral",
