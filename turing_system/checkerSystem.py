@@ -100,6 +100,10 @@ class Checker:
         raw_values = values_statement.literals
 
         for raw_value in raw_values:
+
+            if raw_value.value in self.values:
+                self.error_Values(f"'{raw_value.value}' is already defined in the values part !")
+
             self.values.append(raw_value.value)
 
         if self.values == []:

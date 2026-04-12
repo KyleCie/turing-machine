@@ -23,6 +23,7 @@ from .astSystem import (
 from .lexerSystem import Lexer
 from .checkerSystem import Checker
 from .tokenSystem import TokenType, Token
+from .errorsSystem import TypoError
 
 from sys import version_info
 from typing import Callable
@@ -87,13 +88,21 @@ class Parser:
 
     def __current_error(self, token_type: TokenType) -> None:
 
-        self.errors.append(f"Expected current token to be {token_type}, got " + 
-                           f"{self.current_token.type} instead. -> {self.lexer.position}") #type: ignore
+        if self.current_token.type == TokenType.EOL or self.__peek_token_is(TokenType.EOL): #type: ignore
+            raise TypoError(f"Expected current token to be {token_type}, got " + 
+                                f"{self.current_token.type} instead. AT LINE {self.lexer.line_no-1}") #type: ignore
+        else:
+            raise TypoError(f"Expected current token to be {token_type}, got " + 
+                                f"{self.current_token.type} instead. AT LINE {self.lexer.line_no}") #type: ignore
 
     def __peek_error(self, token_type: TokenType) -> None:
 
-        self.errors.append(f"Expected next token to be {token_type}, got " +
-                           f"{self.peek_token.type} instead. -> {self.lexer.position}") #type: ignore
+        if self.current_token.type == TokenType.EOL or self.__peek_token_is(TokenType.EOL): #type: ignore
+            raise TypoError(f"Expected next token to be {token_type}, got " + 
+                                f"{self.peek_token.type} instead. AT LINE {self.lexer.line_no-1}") #type: ignore
+        else:
+            raise TypoError(f"Expected next token to be {token_type}, got " + 
+                                f"{self.peek_token.type} instead. AT LINE {self.lexer.line_no}") #type: ignore
 
     def parse_program(self) -> Program:
 
@@ -206,7 +215,7 @@ class Parser:
 
         if expr is None:
             self.checker.error_InitialState(
-                f"The initial state have no names !"
+                f"The initial state have no names !. AT LINE {self.lexer.line_no}"
             )
             return None
 
@@ -233,7 +242,7 @@ class Parser:
 
         if expr is None:
             self.checker.error_NameState(
-                f"there is no name for the state !"
+                f"there is no name for the state !. AT LINE {self.lexer.line_no}"
             )
             return None
 
@@ -258,8 +267,8 @@ class Parser:
         if not self.__expect_current(TokenType.COLON):
             return None
 
-        while not self.__current_token_is(TokenType.END) or \
-              not self.__peek_token_is(TokenType.END):
+        while not self.__current_token_is(TokenType.END) and \
+              not self.__peek_token_is(TokenType.EOF):
             
             while self.__current_token_is(TokenType.EOL):
                 self.__next_token()
@@ -312,14 +321,18 @@ class Parser:
         while not self.__current_token_is(TokenType.END) and \
               not self.__current_token_is(TokenType.EOF):
 
-            while self.__current_token_is(TokenType.EOL) or \
-                  self.__current_token_is(TokenType.COMMA):
+            while (self.__current_token_is(TokenType.EOL) or \
+                   self.__current_token_is(TokenType.COMMA)) and \
+                not self.__peek_token_is(TokenType.END):
+                
                 self.__next_token()
 
-            stmt = self.__parse_statement()
+            stmt = self.__parse_expression()
 
             if stmt is not None:
                 tape_stmts.append(stmt) #type: ignore
+            elif not self.__current_token_is(TokenType.EOL):
+                self.__current_error(TokenType.IDENT)
 
             self.__next_token()
 

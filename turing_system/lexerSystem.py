@@ -44,6 +44,15 @@ class Lexer:
         else:
             return self.source[self.read_position + 1] == char
 
+    def __get_peek_char(self) -> str:
+
+        # if we are exceeding the source
+        if self.read_position + 1 >= len(self.source):
+            return ""
+
+        else:
+            return self.source[self.read_position + 1]
+
     def __skip_spaces(self) -> None:
 
         while self.current_char is not None and \
@@ -66,9 +75,7 @@ class Lexer:
     
     def __is_char(self, char : str) -> bool:
 
-        return 'a' <= char and char <= 'z' or \
-               'A' <= char and char <= 'Z' or \
-               '0' <= char and char <= '9'
+        return char not in (':', ',', '§', ' ', '\t', '\r', '\n')
 
     def __read_identifier(self) -> str:
 
@@ -96,13 +103,20 @@ class Lexer:
                     token = self.__new_token(TokenType.COMMA, self.current_char)
 
                 case '_':
-                    token = self.__new_token(TokenType.NONE, self.current_char)
+                    if self.__is_char(self.__get_peek_char()):
+                        literal = self.__read_identifier()
+                        token_type = lookup_ident(literal)
+                        token = self.__new_token(token_type, literal)
+                        return token
+                    else:
+                        token = self.__new_token(TokenType.NONE, self.current_char)
 
                 case '§':
                     while self.current_char != "\n" and self.current_char is not None:
                         self.__read_char()
                     
                     self.__read_char()
+                    self.line_no += 1
                     return self.next_token()
 
                 case '\n':

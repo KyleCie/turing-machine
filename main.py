@@ -24,5 +24,5 @@ def main(file: str):
     print(machin.tape)
 
 if __name__ == "__main__":
-    FILE_NAME = "program examples/binary_increment.txt"
+    FILE_NAME = "program examples/copy.txt"
     main(FILE_NAME)
