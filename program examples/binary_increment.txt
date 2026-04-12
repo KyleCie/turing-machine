@@ -16,7 +16,7 @@ END
 § we have not seen a 1 first, so we can transform into 1 and done.
 state e0:
     0, 1, done, left
-    1, 1, e1    left
+    1, 1, e1,   left
 
     § should no be possible.
     _, STOP

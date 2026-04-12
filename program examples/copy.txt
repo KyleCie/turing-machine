@@ -1,0 +1,112 @@
+§ This program copy any binary number.
+§ If the tape is "1, 0, 1", the result will be "1, 0, 1, #, 1, 0, 1".
+
+values:
+    0, 1, a, b, #
+END
+
+initial state _scan:
+    0, a, toEnd0,         right
+    1, b, toEnd1,         right
+    a, a, _scan,          right
+    b, b, _scan,          right
+    #, #, goRestoreStart, left
+    _, STOP
+END
+
+state toEnd0:
+    0, 0, toEnd0,     right
+    1, 1, toEnd0,     right
+    a, a, toEnd0,     right
+    b, b, toEnd0,     right
+    #, #, afterHash0, right
+    _, #, write0,     right
+END
+
+state toEnd1:
+    0, 0, toEnd1,     right
+    1, 1, toEnd1,     right
+    a, a, toEnd1,     right
+    b, b, toEnd1,     right
+    #, #, afterHash1, right
+    _, #, write1,     right
+END
+
+state afterHash0:
+    0, 0, afterHash0, right
+    1, 1, afterHash0, right
+
+    § should not be possible.
+    a, STOP
+    b, STOP
+    #, STOP
+    _, 0, goBack,     left
+END
+
+state afterHash1:
+    0, 0, afterHash1, right
+    1, 1, afterHash1, right
+
+    § should not be possible.
+    a, STOP
+    b, STOP
+    #, STOP
+    _, 1, goBack,     left
+END
+
+state write0:
+    § should not be possible.
+    0, STOP
+    1, STOP
+    a, STOP
+    b, STOP
+    #, STOP
+
+    _, 0, goBack, left
+END
+
+state write1:
+    § should not be possible.
+    0, STOP
+    1, STOP
+    a, STOP
+    b, STOP
+    #, STOP
+
+    _, 1, goBack, left
+END
+
+state goBack:
+    0, 0, goBack, left
+    1, 1, goBack, left
+    a, a, goBack, left
+    b, b, goBack, left
+    #, #, goBack, left
+    _, _, _scan,   right
+END
+
+state goRestoreStart:
+    a, a, goRestoreStart, left
+    b, b, goRestoreStart, left
+    0, 0, goRestoreStart, left
+    1, 1, goRestoreStart, left
+
+    § should not be possible.
+    #, STOP
+    _, _, restore, right
+END
+
+state restore:
+    a, 0, restore, right
+    b, 1, restore, right
+
+    § should not be possible.
+    0, STOP
+    1, STOP
+    #, STOP
+    _, STOP
+END
+
+code:
+    1, 0, 1
+END
