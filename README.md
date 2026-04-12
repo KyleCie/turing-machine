@@ -317,6 +317,7 @@ Your machine does not reach a `STOP` condition.
 
 ## Updates
 
+- 12/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/e405669b61dd4ee2ba46ed4b07a72eefcc5e8f14) : Fixed bugs in the logic of the parser when handling the body of some parts, created a new type of error for the parser + checker, better logic for IDENT (literals, names, ...) handling (now it can handle pretty much anything).
 - 06/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/d7c0e38eea4bfdaa022c1d8ebe5b868ec27d99b3) : the first version of the Turing machin was created, it use a double-linked chain method, and you can visualised by printing the tape. Also added a .lower() to the lexer when adding a keywords for easier uses of thoses values.
 - 05/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/03840bd1d608d9831ef7faed95c935bb59f8b6ba): Reworked the entire checker system to integrate it into the parser, and introduced proper exceptions. [See discussion](https://github.com/KyleCie/turing-machine/issues/1)
 - 03/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/d7f9eb16604c26d4bf370989c8b7766a3f6216df) : completly added the support for python's language where there are no support for match / case, for all files.
