@@ -246,6 +246,12 @@ Python 3.10+
 
 ### Checker Errors
 
+#### Typo Error
+
+Occurs when the parser wanted a specific word or typo and have not seen it.
+
+### Checker Errors
+
 #### No Values Error
 
 Occurs when no values are defined in the values section.
