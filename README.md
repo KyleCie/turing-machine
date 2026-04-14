@@ -203,7 +203,7 @@ you can add comments by starting it with '§'
 
 ---
 
-## 📌 Example
+## Example
 
 ```
 values:
@@ -244,6 +244,11 @@ Python 3.10+
 ---
 
 ## Troubleshooting
+
+### Parsing warnings
+
+- Missing `END` or colons, a keyword.
+- A state with no names.
 
 ### Parser Errors
 
@@ -302,18 +307,6 @@ Occurs when:
 - No tape is defined in the code section.
 - A value is used on the tape but has never been defined.
 
-### Parsing warnings
-
-- Missing `END` or colons.
-- A state with no names.
-
-### Parsing errors.
-
-- Incorrect commas.
-- Invalid state names.
-- Multiples states with no names.
-- Values not defined.
-
 ---
 
 ## Future Improvements
@@ -325,6 +318,7 @@ Occurs when:
 
 ## Updates
 
+- 14/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/aa6a22cd0a3cd4a03215243e5802e56e1b0f40f1) : First version of a better system to handle TypoError, and auto-troubleshoot it, and create warning + bugfix in the lexer with the logic of the variable 'line_no'. 
 - 12/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/e405669b61dd4ee2ba46ed4b07a72eefcc5e8f14) : Fixed bugs in the logic of the parser when handling the body of some parts, created a new type of error for the parser + checker, better logic for IDENT (literals, names, ...) handling (now it can handle pretty much anything).
 - 06/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/d7c0e38eea4bfdaa022c1d8ebe5b868ec27d99b3) : the first version of the Turing machin was created, it use a double-linked chain method, and you can visualised by printing the tape. Also added a .lower() to the lexer when adding a keywords for easier uses of thoses values.
 - 05/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/03840bd1d608d9831ef7faed95c935bb59f8b6ba): Reworked the entire checker system to integrate it into the parser, and introduced proper exceptions. [See discussion](https://github.com/KyleCie/turing-machine/issues/1)
