@@ -235,6 +235,7 @@ Python 3.8+
     * `dump` from json.
     * `Callable` from typing.
     * `version_info` from sys.
+    * colorama (optionally).
 
 Python 3.10+
 
@@ -244,7 +245,7 @@ Python 3.10+
 
 ## Troubleshooting
 
-### Checker Errors
+### Parser Errors
 
 #### Typo Error
 
@@ -301,16 +302,17 @@ Occurs when:
 - No tape is defined in the code section.
 - A value is used on the tape but has never been defined.
 
-### Infinite loop
+### Parsing warnings
 
-Your machine does not reach a `STOP` condition.
+- Missing `END` or colons.
+- A state with no names.
 
-### Parsing errors
+### Parsing errors.
 
-- Missing `END`
-- Incorrect commas
-- Invalid state names
-- and so on
+- Incorrect commas.
+- Invalid state names.
+- Multiples states with no names.
+- Values not defined.
 
 ---
 

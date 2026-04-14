@@ -6,7 +6,7 @@ def main(file: str):
         text = f.read()
 
     print("Parsing...")
-    parser = Parser(source=text)
+    parser = Parser(source=text, silence=False)
     program = parser.parse_program()
     print("Parsing done !")
 
@@ -24,5 +24,5 @@ def main(file: str):
     print(machin.tape)
 
 if __name__ == "__main__":
-    FILE_NAME = "program examples/copy.txt"
+    FILE_NAME = "program examples/error.txt"
     main(FILE_NAME)

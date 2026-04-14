@@ -37,17 +37,29 @@ from .errorsSystem import (
 
 )
 
+try:
+    import colorama
+    COL_IMPORT = True
+except ImportError:
+    COL_IMPORT = False
+
 class Checker:
 
     def __init__(self) -> None:
 
         self.values: list[str] = []
 
+        self.no_names_states: list[StateLiteral] = []
+        self.no_names_index:  list[int]          = []
+
         self.names_states : set[str] = set()
         self.states_defined: set[str] = set()
 
         self.initial_state: bool = False
         self.code: bool          = False
+
+        if COL_IMPORT:
+            colorama.init()
 
         return None
 
@@ -90,6 +102,20 @@ class Checker:
     def error_Tape(self, reason: str) -> None:
 
         raise TapeError(reason)
+
+    def warning(self, reason: str) -> None:
+
+        if COL_IMPORT:
+            print(f"{colorama.Fore.YELLOW}{reason}{colorama.Fore.RESET}")
+        else:
+            print(f"{reason}")
+
+    def big_warning(self, reason: str) -> None:
+
+        if COL_IMPORT:
+            print(f"{colorama.Fore.RED}{reason}{colorama.Fore.RESET}")
+        else:
+            print(f"{reason}")
 
     def check_values(self, values_statement: ValuesStatement) -> None:
 
@@ -167,7 +193,7 @@ class Checker:
 
     def __check_content_state(self, expr: StateLiteral, body: list[CommandStatement] | None) -> None:
 
-        if expr.value in self.states_defined:
+        if expr.value in self.states_defined and expr.value != "":
             self.error_NameState(
                 f"state '{expr.value} is already defined somewhere else !'"
             )
@@ -179,7 +205,7 @@ class Checker:
             )
             return None
 
-    def check_initial_state(self, expr: StateLiteral, body: list[CommandStatement] | None) -> None:
+    def check_initial_state(self, expr: StateLiteral, body: list[CommandStatement] | None, index: int = 0) -> None:
 
         if self.initial_state:
             self.error_InitialState(
@@ -187,13 +213,21 @@ class Checker:
             )
             return None
 
+        if expr.value == "":
+            self.no_names_states.append(expr)
+            self.no_names_index.append(index)
+
         self.__check_content_state(expr, body)
 
         self.states_defined.add(expr.value)
 
         self.__check_body_state(body, from_state=expr.value) #type: ignore
 
-    def check_state(self, expr: StateLiteral, body: list[CommandStatement] | None) -> None:
+    def check_state(self, expr: StateLiteral, body: list[CommandStatement] | None, index: int = 0) -> None:
+
+        if expr.value == "":
+            self.no_names_states.append(expr)
+            self.no_names_index.append(index)
 
         self.__check_content_state(expr, body)
 
@@ -237,14 +271,27 @@ class Checker:
 
         undefined = (expected - actual) - {"_"}
         if undefined:
-            self.error_NameState(
-                f"{undefined}, those states are used but were never defined!"
-            )
+            if len(undefined) == len(self.no_names_states):
+
+                if len(undefined) == 1:
+                    self.no_names_states[0].value = undefined.pop()
+                    self.states_defined.add(self.no_names_states[0].value)
+                    self.big_warning(
+                        f"WARNING: you forgot to write the name of a state, but it was automatically added (LINE: {self.no_names_index[0]}), the name is '{self.no_names_states[0].value}'."
+                    )
+                else:
+                    self.error_NameState(
+                        f"There are {len(self.no_names_states)} states with no names and the names {undefined} are not defined, forgot to defined the names (LINES: {self.no_names_index}) ?"
+                    )
+            else:
+                self.error_NameState(
+                    f"{undefined}, those states are used but were never defined !"
+                )
 
         unused = (expected - actual) - {"_"}
         if unused:
-            print(
-                f"WARNING !\n{unused}, those states are defined but never used!"
+            self.warning(
+                f"WARNING : {unused}, those states are defined but never used."
             )
 
         return None

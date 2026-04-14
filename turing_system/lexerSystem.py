@@ -59,9 +59,8 @@ class Lexer:
               self.current_char in (' ', '\t', '\r', '\n'):
             
             if self.current_char == '\n':
-
+                self.line_no += 1
                 if not self.__peek_char_is("\n"):
-                    self.line_no += 1
                     return None
 
             self.__read_char()
@@ -155,6 +154,7 @@ class Lexer:
                     self.__read_char()
                 
                 self.__read_char()
+                self.line_no += 1
                 return self.next_token()
 
             if self.current_char == '\n':
