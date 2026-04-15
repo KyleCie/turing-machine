@@ -168,16 +168,7 @@ class Parser:
 
     def __parse_values_statement(self) -> ValuesStatement | None:
 
-        if not self.__peek_token_is(TokenType.COLON):
-            if not self.__peek_token_is(TokenType.EOL):
-                self.__peek_error(TokenType.COLON)
-                return None
-            else:
-                if not self.silence:
-                    self.checker.warning(
-                        f"WARNING: you forgot to add a colon at line {self.lexer.line_no-1}."
-                    )
-                self.__next_token()
+        self.__parse_colon_statement()
 
         body = self.__parse_value_body_statement()
 
@@ -207,21 +198,10 @@ class Parser:
               not self.__current_token_is(TokenType.EOF) and \
               not done:
             
-            while (self.__current_token_is(TokenType.EOL) or \
-                   self.__current_token_is(TokenType.COMMA)) and \
-                not self.__peek_token_is(TokenType.END) and \
-                not done:
-
-                if self.__is_peek_token_important():
-                    done = True
-                    if not self.silence:
-                        self.checker.warning(
-                            f"WARNING: you forgot to add an 'END' at line {self.lexer.line_no-1}."
-                        )
-                    break
-                self.__next_token()
+            done = self.__skip_spaces_statement()
 
             if self.__current_token_is(TokenType.END) or done:
+                self.__next_token()
                 break
 
             stmt = self.__parse_expression()
@@ -235,25 +215,8 @@ class Parser:
 
     def __parse_initial_state_statement(self) -> InitialStateStatement | None:
 
-        line = 0
-
-        if not self.__expect_peek(TokenType.STATE):
-            return None
-
-        if not self.__peek_token_is(TokenType.IDENT):
-            if not (self.__peek_token_is(TokenType.COLON) or \
-                    self.__peek_token_is(TokenType.EOL)):
-                self.__peek_error(TokenType.IDENT)
-                return None
-            else:
-                expr = IdentifierLiteral("")
-                if self.__peek_token_is(TokenType.EOL):
-                    line = self.lexer.line_no - 1
-                else:
-                    line = self.lexer.line_no
-        else:
-            self.__next_token()
-            expr = self.__parse_expression()
+        self.__next_token() # skip INITIAL token.
+        expr, line = self.__parse_name_state_statement() #type: ignore
 
         if expr is None:
             self.checker.error_InitialState(
@@ -263,8 +226,6 @@ class Parser:
 
         if expr.type() == NodeType.IdentifierLiteral:
             expr = StateLiteral(expr.value)
-
-        self.__next_token() # pass the ident state
 
         body = self.__parse_body_state_statement()
 
@@ -277,22 +238,7 @@ class Parser:
 
     def __parse_state_statement(self) -> StateStatement | None:
 
-        line = 0
-
-        if not self.__peek_token_is(TokenType.IDENT):
-            if not (self.__peek_token_is(TokenType.COLON) or \
-                   self.__peek_token_is(TokenType.EOL)):
-                self.__peek_error(TokenType.IDENT)
-                return None
-            else:
-                expr = IdentifierLiteral("")
-                if self.__peek_token_is(TokenType.EOL):
-                    line = self.lexer.line_no - 1
-                else:
-                    line = self.lexer.line_no
-        else:
-            self.__next_token()
-            expr = self.__parse_expression()
+        expr, line = self.__parse_name_state_statement() #type: ignore
 
         if expr is None:
             self.checker.error_NameState(
@@ -303,8 +249,6 @@ class Parser:
         if expr.type() == NodeType.IdentifierLiteral:
             expr = StateLiteral(expr.value)
 
-        self.__next_token() # pass the ident state
-
         body = self.__parse_body_state_statement()
 
         if self.__current_token_is(TokenType.END):
@@ -314,19 +258,34 @@ class Parser:
 
         return StateStatement(expr, body) #type: ignore
 
+    def __parse_name_state_statement(self) -> tuple[IdentifierLiteral, int] | None:
+
+        line = 0
+
+        if not self.__peek_token_is(TokenType.IDENT):
+            if not (self.__peek_token_is(TokenType.COLON) or \
+                   self.__peek_token_is(TokenType.EOL)):
+                self.__peek_error(TokenType.IDENT) # create error.
+                return
+            else:
+                expr = IdentifierLiteral("")
+                if self.__peek_token_is(TokenType.EOL):
+                    line = self.lexer.line_no - 1
+                else:
+                    line = self.lexer.line_no
+        else:
+            self.__next_token()
+            expr = self.__parse_expression()
+
+        return expr, line #type: ignore
+
     def __parse_body_state_statement(self) -> list[CommandStatement] | None:
 
         command_stmts = []
 
-        if not self.__current_token_is(TokenType.COLON):
-            if self.__current_token_is(TokenType.EOL):
-                if not self.silence:
-                    self.checker.warning(
-                        f"WARNING: you forgot to add a colon at line {self.lexer.line_no-1}."
-                    )
-            else:
-                self.__current_error(TokenType.COLON)
-        else:
+        self.__parse_colon_statement()
+
+        if self.__current_token_is(TokenType.COLON):
             self.__next_token()
 
         done = False
@@ -334,15 +293,7 @@ class Parser:
         while not (self.__current_token_is(TokenType.END) and \
                    self.__peek_token_is(TokenType.EOF) and done):
             
-            while self.__current_token_is(TokenType.EOL):
-                if self.__is_peek_token_important():
-                    done = True
-                    if not self.silence:
-                        self.checker.warning(
-                            f"WARNING: you forgot to add an 'END' at line {self.lexer.line_no-1}."
-                        )
-                    break
-                self.__next_token()
+            done = self.__skip_spaces_statement()
 
             if self.__current_token_is(TokenType.END) or done:
                 break
@@ -377,17 +328,7 @@ class Parser:
 
     def __parse_code_statement(self) -> CodeStatement | None:
 
-        if not self.__peek_token_is(TokenType.COLON):
-            if self.__peek_token_is(TokenType.EOL):
-                if not self.silence:
-                    self.checker.warning(
-                        f"WARNING: you forgot to add a colon at line {self.lexer.line_no-1}."
-                    )
-                    self.__next_token()
-            else:
-                self.__peek_error(TokenType.COLON)
-        else:
-            self.__next_token()
+        self.__parse_colon_statement()
         
         body = self.__parse_body_code_statement()
         
@@ -406,23 +347,7 @@ class Parser:
                    self.__current_token_is(TokenType.EOF) and \
                    done):
 
-            while  (self.__current_token_is(TokenType.EOL) or \
-                    self.__current_token_is(TokenType.COMMA)) and \
-                not self.__peek_token_is(TokenType.END):
-                
-                if self.__is_peek_token_important():
-                    done = True
-                    if not self.silence:
-                        if self.__peek_token_is(TokenType.EOF):
-                            self.checker.warning(
-                                f"WARNING: you forgot to add an 'END' at line {self.lexer.line_no}."
-                            )
-                        else:
-                            self.checker.warning(
-                                f"WARNING: you forgot to add an 'END' at line {self.lexer.line_no-1}."
-                            )      
-                    break
-                self.__next_token()
+            done = self.__skip_spaces_statement()
 
             if self.__peek_token_is(TokenType.END) or done:
                 self.__next_token()
@@ -439,6 +364,44 @@ class Parser:
 
         return tape_stmts
     
+    def __parse_colon_statement(self) -> None:
+
+        if not self.__peek_token_is(TokenType.COLON):
+            if self.__peek_token_is(TokenType.EOL):
+                if not self.silence:
+                    self.checker.warning(
+                        f"WARNING: you forgot to add a colon at line {self.lexer.line_no-1}."
+                    )
+                    self.__next_token()
+            else:
+                self.__peek_error(TokenType.COLON)
+        else:
+            self.__next_token()
+
+    def __skip_spaces_statement(self) -> bool:
+
+        done = False
+
+        while  (self.__current_token_is(TokenType.EOL) or \
+                self.__current_token_is(TokenType.COMMA)) and \
+            not self.__peek_token_is(TokenType.END):
+            
+            if self.__is_peek_token_important():
+                done = True
+                if not self.silence:
+                    if self.__peek_token_is(TokenType.EOF):
+                        self.checker.warning(
+                            f"WARNING: you forgot to add an 'END' at line {self.lexer.line_no}."
+                        )
+                    else:
+                        self.checker.warning(
+                            f"WARNING: you forgot to add an 'END' at line {self.lexer.line_no-1}."
+                        )      
+                break
+            self.__next_token()
+
+        return done
+
     def __parse_expression(self) -> Literal | None:
 
         func: Callable | None = self.token_type_to_func.get(self.current_token.type) #type: ignore
