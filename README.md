@@ -36,9 +36,10 @@ turing-machine/
 │
 ├── turing_system
 ├──── astSystem.py            # formatting system
+├──── tokenSystem.py          # usable block for the DSL and the system
 ├──── lexerSystem.py          # transform file to tokens
 ├──── parserSystem.py         # transform tokens to usable informations
-├──── tokenSystem.py          # usable block for the DSL and the system
+├──── fileSystem.py           # file (TextIOWrapper) handler.
 ├──── checkerSystem.py        # check the result of the parser
 ├──── errorsSystem.py         # errors formatting system
 │
@@ -300,12 +301,18 @@ Occurs when there is no code section.
 
 Occurs when the code section is defined more than once.
 
-#### Tape Error
+#### Tape Errors
 
 Occurs when:
 
 - No tape is defined in the code section.
 - A value is used on the tape but has never been defined.
+
+---
+
+## Auto Typo fix
+
+When the parser have the TextIOWrapper, it will automaticly resolve the warnings (typos) after it parsed the program.
 
 ---
 
@@ -318,6 +325,7 @@ Occurs when:
 
 ## Updates
 
+- 15/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/202a7568ef815d277b532d208fbb8d3af29b6e5c) : Added an auto typos corrector in program files, bugfix for the parser with the 'end of file' handling, even better handler of TypoError.
 - 14/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/aa6a22cd0a3cd4a03215243e5802e56e1b0f40f1) : First version of a better system to handle TypoError, and auto-troubleshoot it, and create warning + bugfix in the lexer with the logic of the variable 'line_no'. 
 - 12/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/e405669b61dd4ee2ba46ed4b07a72eefcc5e8f14) : Fixed bugs in the logic of the parser when handling the body of some parts, created a new type of error for the parser + checker, better logic for IDENT (literals, names, ...) handling (now it can handle pretty much anything).
 - 06/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/d7c0e38eea4bfdaa022c1d8ebe5b868ec27d99b3) : the first version of the Turing machin was created, it use a double-linked chain method, and you can visualised by printing the tape. Also added a .lower() to the lexer when adding a keywords for easier uses of thoses values.
