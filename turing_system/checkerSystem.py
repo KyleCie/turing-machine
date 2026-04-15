@@ -304,11 +304,16 @@ class Checker:
                     f"{undefined}, those states are used but were never defined !"
                 )
 
-        unused = (expected - actual) - {"_"}
+        unused = (actual - expected) - {"_"}
         if unused:
-            self.warning(
-                f"WARNING : {unused}, those states are defined but never used."
-            )
+            if len(unused) > 1:
+                self.warning(
+                    f"WARNING : {unused}, those states are defined but never used."
+                )
+            else:
+                self.warning(
+                    f"WARNING : {unused}, this state is defined but never used."
+                )
 
         return None
     
