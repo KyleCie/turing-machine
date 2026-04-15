@@ -22,19 +22,28 @@ from .astSystem import (
 
 from .lexerSystem import Lexer
 from .checkerSystem import Checker
+from .fileSystem import File
 from .tokenSystem import TokenType, Token
 from .errorsSystem import TypoError
 
 from sys import version_info
-from typing import Callable
+from typing import Callable, TextIO
 
 class Parser:
 
-    def __init__(self, source: str, silence: bool = False) -> None:
+    def __init__(self, source: str | TextIO, silence: bool = False) -> None:
         
         self.silence: bool    = silence
-        self.lexer:   Lexer   = Lexer(source=source)
         self.checker: Checker = Checker()
+
+        if isinstance(source, str):
+            self.lexer: Lexer = Lexer(source=source)
+            self.is_source_txt = True
+        else:
+            self.file:  File  = File(file_handler=source)
+            self.lexer: Lexer = Lexer(source=self.file.get_text())
+            self.checker.add_file_handler(self.file)
+            self.is_source_txt = False
 
         # list of errors caught during parsing
         self.errors: list[str] = []
@@ -69,7 +78,9 @@ class Parser:
     
     def __is_peek_token_important(self) -> bool:
 
-        return self.peek_token.type in (TokenType.STATE, TokenType.INITIAL, TokenType.CODE, TokenType.VALUES, TokenType.EOF) #type: ignore
+        return self.peek_token.type in ( #type: ignore
+            TokenType.STATE, TokenType.INITIAL, TokenType.CODE, TokenType.VALUES, TokenType.EOF
+            ) 
 
     def __expect_peek(self, token_type: TokenType) -> bool:
 
@@ -127,6 +138,10 @@ class Parser:
         self.__next_token()
 
         self.checker.last_check()
+
+        if not self.is_source_txt:
+            self.file.do_action()
+            self.file.close_file()
 
         return program
     
@@ -194,8 +209,8 @@ class Parser:
 
         done = False
 
-        while not self.__current_token_is(TokenType.END) and \
-              not self.__current_token_is(TokenType.EOF) and \
+        while not self.__current_token_is(TokenType.END) or \
+              not self.__current_token_is(TokenType.EOF) or \
               not done:
             
             done = self.__skip_spaces_statement()
@@ -216,7 +231,7 @@ class Parser:
     def __parse_initial_state_statement(self) -> InitialStateStatement | None:
 
         self.__next_token() # skip INITIAL token.
-        expr, line = self.__parse_name_state_statement() #type: ignore
+        expr, line, pos = self.__parse_name_state_statement() #type: ignore
 
         if expr is None:
             self.checker.error_InitialState(
@@ -232,13 +247,13 @@ class Parser:
         if self.__current_token_is(TokenType.END):
             self.__next_token()
 
-        self.checker.check_initial_state(expr, body, line) #type: ignore
+        self.checker.check_initial_state(expr, body, (line, pos)) #type: ignore
 
         return InitialStateStatement(expr, body) #type: ignore
 
     def __parse_state_statement(self) -> StateStatement | None:
 
-        expr, line = self.__parse_name_state_statement() #type: ignore
+        expr, line, pos = self.__parse_name_state_statement() #type: ignore
 
         if expr is None:
             self.checker.error_NameState(
@@ -254,11 +269,11 @@ class Parser:
         if self.__current_token_is(TokenType.END):
             self.__next_token()
 
-        self.checker.check_state(expr, body, line) #type: ignore
+        self.checker.check_state(expr, body, (line, pos)) #type: ignore
 
         return StateStatement(expr, body) #type: ignore
 
-    def __parse_name_state_statement(self) -> tuple[IdentifierLiteral, int] | None:
+    def __parse_name_state_statement(self) -> tuple[IdentifierLiteral, int, int] | None:
 
         line = 0
 
@@ -277,7 +292,7 @@ class Parser:
             self.__next_token()
             expr = self.__parse_expression()
 
-        return expr, line #type: ignore
+        return expr, line, self.lexer.position #type: ignore
 
     def __parse_body_state_statement(self) -> list[CommandStatement] | None:
 
@@ -290,8 +305,8 @@ class Parser:
 
         done = False
 
-        while not (self.__current_token_is(TokenType.END) and \
-                   self.__peek_token_is(TokenType.EOF) and done):
+        while not (self.__current_token_is(TokenType.END) or \
+                   self.__current_token_is(TokenType.EOF) or done):
             
             done = self.__skip_spaces_statement()
 
@@ -313,16 +328,15 @@ class Parser:
                 if not self.__current_token_is(TokenType.EOL):
                     self.__next_token()
 
+                if self.__current_token_is(TokenType.EOF):
+                    break
+
             if command_stmt.statements == []:
-                self.checker.error_NoCommands(
-                    f"You forgot to add an 'END' at line {self.lexer.line_no-1}."
-                )
+                self.__next_token()
+                done = True
+                break
             else:
                 command_stmts.append(command_stmt)
-
-            if self.__current_token_is(TokenType.EOL) and not self.__peek_token_is(TokenType.END) and \
-               not done:
-                self.__next_token()
 
         return command_stmts
 
@@ -343,8 +357,10 @@ class Parser:
         tape_stmts: list[Literal] = []
         done = False
 
-        while not (self.__current_token_is(TokenType.END) and \
-                   self.__current_token_is(TokenType.EOF) and \
+        self.__next_token()
+
+        while not (self.__current_token_is(TokenType.END) or \
+                   self.__current_token_is(TokenType.EOF) or \
                    done):
 
             done = self.__skip_spaces_statement()
@@ -357,7 +373,8 @@ class Parser:
 
             if stmt is not None:
                 tape_stmts.append(stmt) #type: ignore
-            elif not self.__current_token_is(TokenType.EOL) and not self.__is_peek_token_important():
+            elif not self.__current_token_is(TokenType.EOL) and \
+                 not self.__is_peek_token_important():
                 self.__current_error(TokenType.IDENT)
 
             self.__next_token()
@@ -372,6 +389,8 @@ class Parser:
                     self.checker.warning(
                         f"WARNING: you forgot to add a colon at line {self.lexer.line_no-1}."
                     )
+                    if not self.is_source_txt:
+                        self.file.add_action(":", self.lexer.position-1)
                     self.__next_token()
             else:
                 self.__peek_error(TokenType.COLON)
@@ -381,6 +400,7 @@ class Parser:
     def __skip_spaces_statement(self) -> bool:
 
         done = False
+        last_index = self.lexer.position
 
         while  (self.__current_token_is(TokenType.EOL) or \
                 self.__current_token_is(TokenType.COMMA)) and \
@@ -396,7 +416,9 @@ class Parser:
                     else:
                         self.checker.warning(
                             f"WARNING: you forgot to add an 'END' at line {self.lexer.line_no-1}."
-                        )      
+                        )
+                    if not self.is_source_txt:
+                        self.file.add_action(TokenType.END, last_index-1)
                 break
             self.__next_token()
 

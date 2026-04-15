@@ -37,6 +37,8 @@ from .errorsSystem import (
 
 )
 
+from .fileSystem import File
+
 try:
     import colorama
     COL_IMPORT = True
@@ -47,10 +49,12 @@ class Checker:
 
     def __init__(self) -> None:
 
+        self.is_source_txt = True
+
         self.values: list[str] = []
 
-        self.no_names_states: list[StateLiteral] = []
-        self.no_names_index:  list[int]          = []
+        self.no_names_states: list[StateLiteral]    = []
+        self.no_names_index:  list[tuple[int, int]] = []
 
         self.names_states : set[str] = set()
         self.states_defined: set[str] = set()
@@ -62,6 +66,11 @@ class Checker:
             colorama.init()
 
         return None
+
+    def add_file_handler(self, file_handler: File) -> None:
+
+        self.is_source_txt = False
+        self.file = file_handler
 
     def error_NoValues(self, reason: str) -> None:
 
@@ -147,13 +156,13 @@ class Checker:
 
             if stmts[0].value in values_defined:
                 self.error_Command(
-                    f"in {from_state} : {index}, value '{stmts[0].value}' is already defined !"
+                    f"In {from_state} : command {index+1}, value '{stmts[0].value}' is already defined !"
                 )
                 return None
 
             if stmts[0].value != "_" and stmts[0].value not in self.values:
                 self.error_Command(
-                    f"in {from_state} : {index}, value {stmts[0].value} was never defined in the values part !"
+                    f"In {from_state} : command {index+1}, value {stmts[0].value} was never defined in the values part !"
                 )
                 return None
 
@@ -162,14 +171,14 @@ class Checker:
             if not (stmts[1].value == "STOP" or stmts[1].value == "_") and \
                    (stmts[1].value not in self.values):
                 self.error_Command(
-                    f"in {from_state} : {index}, value {stmts[1].value} was never defined in the values part !"
+                    f"In {from_state} : command {index+1}, value {stmts[1].value} was never defined in the values part !"
                 )
                 return None
 
             if stmts[1].value != "STOP":
                 if stmts[2].type() != NodeType.IdentifierLiteral and stmts[2].value != "_":
                     self.error_Command(
-                        f"in {from_state} : {index}, '{stmts[2].value}' is not a state !"
+                        f"In {from_state} : command {index+1}, '{stmts[2].value}' is not a state !"
                     )
                     return None
 
@@ -177,7 +186,7 @@ class Checker:
 
                 if stmts[3].type() != NodeType.DirectionLiteral:
                     self.error_Command(
-                        f"in {from_state} : {index}, '{stmts[3].value}' is not a direction !"
+                        f"In {from_state} : command {index+1}, '{stmts[3].value}' is not a direction !"
                     )
 
         expected = set(self.values) | {"_"}
@@ -185,9 +194,14 @@ class Checker:
 
         if actual != expected:
             diffs = expected - actual
-            self.error_NoAllValuesUsed(
-                f"in {from_state}, {diffs} : those values are not defined !"
-            )
+            if len(diffs) > 1:
+                self.error_NoAllValuesUsed(
+                    f"In {from_state}, {diffs} : those values are not defined !"
+                )
+            else:
+                self.error_NoAllValuesUsed(
+                    f"In {from_state}, {diffs} : this value is not defined !"
+                )
 
         return None
 
@@ -205,7 +219,7 @@ class Checker:
             )
             return None
 
-    def check_initial_state(self, expr: StateLiteral, body: list[CommandStatement] | None, index: int = 0) -> None:
+    def check_initial_state(self, expr: StateLiteral, body: list[CommandStatement] | None, index: tuple[int, int] = (0, 0)) -> None:
 
         if self.initial_state:
             self.error_InitialState(
@@ -223,7 +237,7 @@ class Checker:
 
         self.__check_body_state(body, from_state=expr.value) #type: ignore
 
-    def check_state(self, expr: StateLiteral, body: list[CommandStatement] | None, index: int = 0) -> None:
+    def check_state(self, expr: StateLiteral, body: list[CommandStatement] | None, index: tuple[int, int] = (0, 0)) -> None:
 
         if expr.value == "":
             self.no_names_states.append(expr)
@@ -277,11 +291,13 @@ class Checker:
                     self.no_names_states[0].value = undefined.pop()
                     self.states_defined.add(self.no_names_states[0].value)
                     self.big_warning(
-                        f"WARNING: you forgot to write the name of a state, but it was automatically added (LINE: {self.no_names_index[0]}), the name is '{self.no_names_states[0].value}'."
+                        f"WARNING: you forgot to write the name of a state, but it was automatically added (LINE: {self.no_names_index[0][0]}), the name is '{self.no_names_states[0].value}'."
                     )
+                    if not self.is_source_txt:
+                        self.file.add_action(self.no_names_states[0].value, self.no_names_index[0][1]-1)
                 else:
                     self.error_NameState(
-                        f"There are {len(self.no_names_states)} states with no names and the names {undefined} are not defined, forgot to defined the names (LINES: {self.no_names_index}) ?"
+                        f"There are {len(self.no_names_states)} states with no names and the names {undefined} are not defined, forgot to defined the names (LINES: {[x[1] for x in self.no_names_index]}) ?"
                     )
             else:
                 self.error_NameState(

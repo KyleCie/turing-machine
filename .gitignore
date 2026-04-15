@@ -6,3 +6,4 @@ og test/
 
 # to create errors in the parsing
 program examples/error.txt
+test.py
