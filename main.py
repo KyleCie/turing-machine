@@ -8,10 +8,6 @@ def main(file: str):
         program = parser.parse_program()
         print("Parsing done !")
 
-    if len(parser.errors) > 0:
-        for err in parser.errors:
-            print(err)
-
     machin = Turing(program)
     print(machin.tape)
     result = machin.run()

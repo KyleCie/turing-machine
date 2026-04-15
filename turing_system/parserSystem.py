@@ -45,9 +45,6 @@ class Parser:
             self.checker.add_file_handler(self.file)
             self.is_source_txt = False
 
-        # list of errors caught during parsing
-        self.errors: list[str] = []
-
         self.current_token: Token | None = self.lexer.next_token()
         self.peek_token:    Token | None = self.lexer.next_token()
 
