@@ -328,6 +328,9 @@ class Checker:
 
     def last_check(self) -> None:
 
+        if not (self.initial_state and self.code) and self.values == []: # no program.
+            return None
+
         self.__check_if_states_good()
         self.__check_if_code_good()
 

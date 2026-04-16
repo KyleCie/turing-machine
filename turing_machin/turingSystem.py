@@ -53,7 +53,12 @@ class Turing:
 
         # Turing machin itself
         self.name_state = self.initial_state
-        self.on_state: dict[str, Transition] = self.states[self.initial_state] #type: ignore
+
+        if self.initial_state:
+            self.on_state: dict[str, Transition] = self.states[self.initial_state]
+        else: # no program.
+            raise RuntimeError("There is no program !")
+            
         self.end: bool = False
 
         self.tape.reset_indexisation() #type: ignore
@@ -157,7 +162,7 @@ class Turing:
     def __run(self) -> None:
         
         if not self.tape:
-            return None
+            raise RuntimeError(f"There is no tape !")
 
         case_value = self.tape.get_chain().get_value()
         command = self.on_state.get(case_value, None)
@@ -178,9 +183,13 @@ class Turing:
         else:
             self.tape.go_right()
         
-        if command.next_state != self.name_state:
+        if command.next_state != self.name_state and command.next_state != "_":
             self.name_state = command.next_state
             self.on_state = self.states[self.name_state]
+            self.on_state = self.states.get(self.name_state, None)
+
+            if not self.on_state:
+                raise RuntimeError(f"Unable to get the state {self.name_state}.")
 
     def run(self) -> bool:
 

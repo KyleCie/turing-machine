@@ -249,6 +249,9 @@ Python 3.10+
 ### Parsing warnings
 
 - Missing `END` or colons, a keyword.
+
+### Checker warnings
+
 - A state with no names.
 
 ### Parser Errors
@@ -273,8 +276,11 @@ Occurs when more than one initial state is defined.
 
 #### Name State Error
 
-Occurs when multiple states share the same name.
-Also occurs when a state is referenced in commands but has never been defined.
+Occurs when :
+
+- Multiple states share the same name.
+- A state is referenced in commands but has never been defined.
+- There is the same number of undefined state names and states with no names.
 
 #### No Commands Error
 
@@ -301,12 +307,22 @@ Occurs when there is no code section.
 
 Occurs when the code section is defined more than once.
 
-#### Tape Errors
+#### Tape Error
 
 Occurs when:
 
 - No tape is defined in the code section.
 - A value is used on the tape but has never been defined.
+
+### Turing machin Errors
+
+#### Runtime Error
+
+Occurs when :
+
+- the program is empty.
+- Unable to do a command.
+- The tape is empty, or not existing.
 
 ---
 
