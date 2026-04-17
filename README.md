@@ -341,6 +341,7 @@ When the parser have the TextIOWrapper, it will automaticly resolve the warnings
 
 ## Updates
 
+- 17/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/9ef90080ad86c8dc2ef2c5ec5bb6fa06b2b84b75) : Added an system to find if there is a possibility (or "path") to go on all the states, if not it's because the states will technically never be used. Added the silencer on the checker from the parser. Better errors handler in the machin.
 - 15/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/202a7568ef815d277b532d208fbb8d3af29b6e5c) : Added an auto typos corrector in program files, bugfix for the parser with the 'end of file' handling, even better handler of TypoError.
 - 14/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/aa6a22cd0a3cd4a03215243e5802e56e1b0f40f1) : First version of a better system to handle TypoError, and auto-troubleshoot it, and create warning + bugfix in the lexer with the logic of the variable 'line_no'. 
 - 12/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/e405669b61dd4ee2ba46ed4b07a72eefcc5e8f14) : Fixed bugs in the logic of the parser when handling the body of some parts, created a new type of error for the parser + checker, better logic for IDENT (literals, names, ...) handling (now it can handle pretty much anything).
