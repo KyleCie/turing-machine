@@ -37,6 +37,13 @@ from .errorsSystem import (
 
 )
 
+from .tokenSystem import (
+    
+    REST_KEYWORDS,    
+    TokenType,
+    
+)
+
 from .fileSystem import File
 
 try:
@@ -165,7 +172,7 @@ class Checker:
                 )
                 return None
 
-            if stmts[0].value != "_" and stmts[0].value not in self.values:
+            if stmts[0].type() != NodeType.NoneLiteral and stmts[0].value not in self.values:
                 self.error_Command(
                     f"In {from_state} : command {index+1}, value {stmts[0].value} was never defined in the values part !"
                 )
@@ -173,15 +180,15 @@ class Checker:
 
             values_defined.append(stmts[0].value)
 
-            if not (stmts[1].value == "STOP" or stmts[1].value == "_") and \
+            if not (stmts[1].type() == NodeType.StopLiteral or stmts[1].type() == NodeType.NoneLiteral) and \
                    (stmts[1].value not in self.values):
                 self.error_Command(
                     f"In {from_state} : command {index+1}, value {stmts[1].value} was never defined in the values part !"
                 )
                 return None
 
-            if stmts[1].value != "STOP":
-                if stmts[2].type() != NodeType.IdentifierLiteral and stmts[2].value != "_":
+            if stmts[1].type() != NodeType.StopLiteral:
+                if stmts[2].type() != NodeType.IdentifierLiteral and stmts[2].type() != NodeType.NoneLiteral:
                     self.error_Command(
                         f"In {from_state} : command {index+1}, '{stmts[2].value}' is not a state !"
                     )
@@ -194,7 +201,7 @@ class Checker:
                         f"In {from_state} : command {index+1}, '{stmts[3].value}' is not a direction !"
                     )
 
-        expected = set(self.values) | {"_"}
+        expected = set(self.values) | {REST_KEYWORDS[TokenType.NONE]}
         actual = set(values_defined)
 
         if actual != expected:
@@ -275,7 +282,7 @@ class Checker:
         for case in body:
             value = case.value
 
-            if value == "_":
+            if value == REST_KEYWORDS[TokenType.NONE]:
                 continue
 
             if value not in self.values:
@@ -294,10 +301,10 @@ class Checker:
             )
             return None
 
-        expected = self.names_states | {"_"}
+        expected = self.names_states | {REST_KEYWORDS[TokenType.NONE]}
         actual = self.states_defined
 
-        undefined = (expected - actual) - {"_"}
+        undefined = (expected - actual) - {REST_KEYWORDS[TokenType.NONE]}
         if undefined:
             if len(undefined) == len(self.no_names_states):
 
@@ -338,7 +345,7 @@ class Checker:
                 if len(stmts) <= 2:
                     continue
 
-                if stmts[2].value == "_":
+                if stmts[2].type() == NodeType.NoneLiteral:
                     continue
 
                 if not stmts[2].value in states_seen:

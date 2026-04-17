@@ -61,6 +61,28 @@ KEYWORDS: dict[str, TokenType] = {
 
 }
 
+REVERSED_KEYWORDS: dict[TokenType, tuple[str, ...]] = {
+
+    TokenType.VALUES:  ("values",),
+    TokenType.STATE:   ("state",),
+    TokenType.INITIAL: ("initial",),
+    TokenType.CODE:    ("code",),
+    TokenType.RIGHT:   ("right", "r"),
+    TokenType.LEFT:    ("left", "l"),
+    TokenType.STOP:    ("stop",),
+    TokenType.END:     ("end",),
+
+}
+
+REST_KEYWORDS: dict[TokenType, str] = {
+
+    TokenType.COLON: ":",
+    TokenType.NONE:  "_",
+    TokenType.COMMA: ",",
+    TokenType.EOL:   "\n",
+
+}
+
 def lookup_ident(ident: str) -> TokenType:
 
     tt: TokenType | None = KEYWORDS.get(ident.lower())

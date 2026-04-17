@@ -1,4 +1,4 @@
-from .tokenSystem import Token, TokenType, lookup_ident
+from .tokenSystem import Token, TokenType, lookup_ident, REST_KEYWORDS
 
 from typing import Any
 from sys import version_info
@@ -16,6 +16,9 @@ class Lexer:
 
         self.in_a_comment: bool = False
         self.current_char: str | None = None
+
+        self.values_rest_ks = tuple(REST_KEYWORDS.values())
+        self.items_rest_ks = REST_KEYWORDS.items()
 
         self.__read_char() # init.
 
@@ -74,7 +77,7 @@ class Lexer:
     
     def __is_char(self, char : str) -> bool:
 
-        return char not in (':', ',', '§', ' ', '\t', '\r', '\n')
+        return char not in (self.values_rest_ks + ("\t", "\r", " "))
 
     def __read_identifier(self) -> str:
 
@@ -86,90 +89,46 @@ class Lexer:
 
         return self.source[start:self.position]
 
-    if version_info >= (3, 10):
-        def next_token(self) -> Token | None:
+    def next_token(self) -> Token | None:
+        
+        self.__skip_spaces()
 
-            token: Token | None = None
-            
-            self.__skip_spaces()
-
-            match self.current_char:
-                
-                case ':':
-                    token = self.__new_token(TokenType.COLON, self.current_char)
-
-                case ',':
-                    token = self.__new_token(TokenType.COMMA, self.current_char)
-
-                case '_':
-                    if self.__is_char(self.__get_peek_char()):
-                        literal = self.__read_identifier()
-                        token_type = lookup_ident(literal)
-                        token = self.__new_token(token_type, literal)
-                        return token
-                    else:
-                        token = self.__new_token(TokenType.NONE, self.current_char)
-
-                case '§':
-                    while self.current_char != "\n" and self.current_char is not None:
-                        self.__read_char()
-                    
-                    self.__read_char()
-                    self.line_no += 1
-                    return self.next_token()
-
-                case '\n':
-                    token = self.__new_token(TokenType.EOL, "\\n")
-
-                case None:
-                    token = self.__new_token(TokenType.EOF, '')
-                
-                case _:
-                    if self.__is_char(self.current_char):
-                        literal = self.__read_identifier()
-                        token_type = lookup_ident(literal)
-                        token = self.__new_token(token_type, literal)
-                        return token
-                    else:
-                        token = self.__new_token(TokenType.ILLEGAL, self.current_char)
-
+        if self.current_char == REST_KEYWORDS[TokenType.EOL]:
+            token = self.__new_token(TokenType.EOL, "\\n")
             self.__read_char()
             return token
-    else:
-        def next_token(self) -> Token | None:
-            
-            self.__skip_spaces()
 
-            if self.current_char == ':':
-                return self.__new_token(TokenType.COLON, self.current_char)
-
-            if self.current_char == ',':
-               return self.__new_token(TokenType.COMMA, self.current_char)
-
-            if self.current_char == '_':
-                return self.__new_token(TokenType.NONE, self.current_char)
-
-            if self.current_char == '§':
-                while self.current_char != "\n" and self.current_char is not None:
-                    self.__read_char()
-                
+        if self.current_char == '§':
+            while self.current_char != REST_KEYWORDS[TokenType.EOL] and self.current_char is not None:
                 self.__read_char()
-                self.line_no += 1
-                return self.next_token()
+            self.__read_char()
+            self.line_no += 1
+            return self.next_token()
 
-            if self.current_char == '\n':
-                return self.__new_token(TokenType.EOL, "\\n")
+        if self.current_char is None:
+            return self.__new_token(TokenType.EOF, '')
 
-            if self.current_char == None:
-                return self.__new_token(TokenType.EOF, '')
-            
-            if self.__is_char(self.current_char):
+        if self.current_char == REST_KEYWORDS[TokenType.NONE]:
+            if self.__is_char(self.__get_peek_char()):
                 literal = self.__read_identifier()
                 token_type = lookup_ident(literal)
-                token = self.__new_token(token_type, literal.lower())
-                return token
+                return self.__new_token(token_type, literal)
             else:
-                token = self.__new_token(TokenType.ILLEGAL, self.current_char)
+                token = self.__new_token(TokenType.NONE, REST_KEYWORDS[TokenType.NONE])
+                self.__read_char()
+                return token
 
-            self.__read_char()
-            return None
+        if self.__is_char(self.current_char):
+            literal = self.__read_identifier()
+            token_type = lookup_ident(literal)
+            return self.__new_token(token_type, literal)
+
+        for token_type, symbol in self.items_rest_ks:
+            if self.current_char == symbol:
+                token = self.__new_token(token_type, self.current_char)
+                self.__read_char()
+                return token
+
+        token = self.__new_token(TokenType.ILLEGAL, self.current_char)
+        self.__read_char()
+        return token

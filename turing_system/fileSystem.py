@@ -1,4 +1,10 @@
-from .tokenSystem import KEYWORDS, TokenType
+from .tokenSystem import (
+    
+    KEYWORDS, 
+    REST_KEYWORDS,
+    TokenType,
+    
+)
 
 from typing import TextIO
 from sys import version_info
@@ -65,7 +71,6 @@ class File:
     def do_action(self) -> None:
         
         keywords_values = KEYWORDS.values()
-        reversed_keywords = {v: k for k, v in KEYWORDS.items() if len(k) > 1}
 
         self.file_handler.seek(0)
         content = self.content
@@ -77,11 +82,13 @@ class File:
 
             if isinstance(element, TokenType):
                 if element in keywords_values:
-                    word = reversed_keywords.get(element, None)
+                    info = REST_KEYWORDS.get(element, None)
                     
-                    if word is None:
+                    if info is None:
                         self.file_handler.close()
                         raise ValueError("Error when handling the TokenType in the File handler system.")
+                    
+                    word = info[0]
                 else:
                     self.file_handler.close()
                     raise ValueError("Error with the token got from the parser.") 

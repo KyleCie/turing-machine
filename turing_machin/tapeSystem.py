@@ -1,3 +1,10 @@
+from turing_system.tokenSystem import (
+    
+    REST_KEYWORDS,
+    TokenType,
+
+)
+
 
 class Tape:
 
@@ -19,7 +26,7 @@ class Tape:
         chain = self.on_chain.get_left()
         
         if chain is None:
-            new_chain = Chain("_")
+            new_chain = Chain(REST_KEYWORDS[TokenType.NONE])
             self.on_chain.link_on_left(new_chain)
             new_chain.link_on_right(self.on_chain)
             chain = new_chain
@@ -34,7 +41,7 @@ class Tape:
         chain = self.on_chain.get_right()
         
         if chain is None:
-            new_chain = Chain("_")
+            new_chain = Chain(REST_KEYWORDS[TokenType.NONE])
             self.on_chain.link_on_right(new_chain)
             new_chain.link_on_left(self.on_chain)
             chain = new_chain

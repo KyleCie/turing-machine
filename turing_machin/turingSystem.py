@@ -20,6 +20,14 @@ from turing_system.astSystem import (
 
 )
 
+from turing_system.tokenSystem import (
+
+    REST_KEYWORDS,
+    REVERSED_KEYWORDS,
+    TokenType,
+
+)
+
 from .tapeSystem import (
 
     Tape,
@@ -177,13 +185,16 @@ class Turing:
         if command.write != case_value:
             self.tape.get_chain().set_value(command.write) #type: ignore
         
-        if command.direction in ("left", "l"):
+        if command.direction in REVERSED_KEYWORDS[TokenType.LEFT]:
             self.tape.go_left()
 
         else:
             self.tape.go_right()
         
-        if command.next_state != self.name_state and command.next_state != "_" and command.next_state:
+        if command.next_state != self.name_state and \
+           command.next_state != REST_KEYWORDS[TokenType.NONE] and \
+           command.next_state:
+            
             self.name_state = command.next_state
             self.on_state = self.states.get(self.name_state, {})
 
