@@ -168,7 +168,7 @@ class Turing:
         command = self.on_state.get(case_value, None)
 
         if not command:
-            return None
+            raise RuntimeError(f"Unable to get the command for the value {case_value} (STATE: {self.name_state}).")
 
         if command.stop:
             self.end = True
@@ -183,12 +183,11 @@ class Turing:
         else:
             self.tape.go_right()
         
-        if command.next_state != self.name_state and command.next_state != "_":
+        if command.next_state != self.name_state and command.next_state != "_" and command.next_state:
             self.name_state = command.next_state
-            self.on_state = self.states[self.name_state]
-            self.on_state = self.states.get(self.name_state, None)
+            self.on_state = self.states.get(self.name_state, {})
 
-            if not self.on_state:
+            if self.on_state == {}:
                 raise RuntimeError(f"Unable to get the state {self.name_state}.")
 
     def run(self) -> bool:

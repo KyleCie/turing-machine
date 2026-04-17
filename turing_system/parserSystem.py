@@ -34,7 +34,7 @@ class Parser:
     def __init__(self, source: str | TextIO, silence: bool = False) -> None:
         
         self.silence: bool    = silence
-        self.checker: Checker = Checker()
+        self.checker: Checker = Checker(silence=silence)
 
         if isinstance(source, str):
             self.lexer: Lexer = Lexer(source=source)

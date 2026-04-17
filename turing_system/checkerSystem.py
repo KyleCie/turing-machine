@@ -47,19 +47,23 @@ except ImportError:
 
 class Checker:
 
-    def __init__(self) -> None:
+    def __init__(self, silence: bool = False) -> None:
 
-        self.is_source_txt = True
+        self.silence: bool = silence
+
+        self.is_source_txt: bool = True
 
         self.values: list[str] = []
 
         self.no_names_states: list[StateLiteral]    = []
         self.no_names_index:  list[tuple[int, int]] = []
 
+        self.states: dict[str, list[CommandStatement]] = {}
         self.names_states : set[str] = set()
         self.states_defined: set[str] = set()
 
         self.initial_state: bool = False
+        self.initial_name: str   = ""
         self.code: bool          = False
 
         if COL_IMPORT:
@@ -148,6 +152,7 @@ class Checker:
     
     def __check_body_state(self, body: list[CommandStatement], from_state: str) -> None:
 
+        self.states[from_state] = body
         values_defined: list[str] = []
 
         for (index, command) in enumerate(body):
@@ -194,13 +199,13 @@ class Checker:
 
         if actual != expected:
             diffs = expected - actual
-            if len(diffs) > 1:
-                self.error_NoAllValuesUsed(
-                    f"In {from_state}, {diffs} : those values are not defined !"
+            if len(diffs) > 1 and not self.silence:
+                self.warning(
+                    f"WARNING: in '{from_state}', {diffs} : those values are not defined !"
                 )
             else:
-                self.error_NoAllValuesUsed(
-                    f"In {from_state}, {diffs} : this value is not defined !"
+                self.warning(
+                    f"WARNING: in '{from_state}', {diffs} : this value is not defined !"
                 )
 
         return None
@@ -226,6 +231,9 @@ class Checker:
                 f"There already a initial state defined, so {expr.value} can not be too !"
             )
             return None
+
+        self.initial_state = True
+        self.initial_name  = expr.value
 
         if expr.value == "":
             self.no_names_states.append(expr)
@@ -280,6 +288,12 @@ class Checker:
 
     def __check_if_states_good(self) -> None:
 
+        if not self.initial_state:
+            self.error_InitialState(
+                f"There is not initial state !"
+            )
+            return None
+
         expected = self.names_states | {"_"}
         actual = self.states_defined
 
@@ -304,19 +318,51 @@ class Checker:
                     f"{undefined}, those states are used but were never defined !"
                 )
 
-        unused = (actual - expected) - {"_"}
-        if unused:
-            if len(unused) > 1:
-                self.warning(
-                    f"WARNING : {unused}, those states are defined but never used."
-                )
-            else:
-                self.warning(
-                    f"WARNING : {unused}, this state is defined but never used."
-                )
-
         return None
     
+    def __check_if_states_really_used(self) -> None:
+
+        def __recursive_search(state_name: str, memory: set[str] | None = None) -> set[str]:
+
+            states_seen: set[str] = memory if memory else set()
+            commands = self.states.get(state_name, None)
+
+            states_seen.add(state_name)
+
+            if commands is None:
+                raise RuntimeError(f"Unable to get the commands of {state_name}.")
+
+            for command in commands:
+                stmts = command.statements
+
+                if len(stmts) <= 2:
+                    continue
+
+                if stmts[2].value == "_":
+                    continue
+
+                if not stmts[2].value in states_seen:
+                    states_seen.add(stmts[2].value)
+                    states_seen = states_seen.union(__recursive_search(stmts[2].value, states_seen))
+
+            return states_seen
+
+        result = __recursive_search(self.initial_name)
+        unused = self.states_defined - result
+
+        if unused:
+            if not self.silence:
+                if len(unused) == 1:
+                    self.warning(
+                        f"WARNING: {unused}, this state will not be used by the machin."
+                    )
+                else:
+                    self.warning(
+                        f"WARNING: {unused}, those states will not be used by the machin."
+                    )
+
+        return None
+
     def __check_if_code_good(self) -> None:
 
         if not self.code:
@@ -332,6 +378,7 @@ class Checker:
             return None
 
         self.__check_if_states_good()
+        self.__check_if_states_really_used()
         self.__check_if_code_good()
 
         return None
