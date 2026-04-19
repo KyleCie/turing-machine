@@ -174,7 +174,7 @@ class Checker:
 
             if stmts[0].type() != NodeType.NoneLiteral and stmts[0].value not in self.values:
                 self.error_Command(
-                    f"In {from_state} : command {index+1}, value {stmts[0].value} was never defined in the values part !"
+                    f"In {from_state} : command {index+1}, value '{stmts[0].value}' was never defined in the values part !"
                 )
                 return None
 
@@ -183,7 +183,7 @@ class Checker:
             if not (stmts[1].type() == NodeType.StopLiteral or stmts[1].type() == NodeType.NoneLiteral) and \
                    (stmts[1].value not in self.values):
                 self.error_Command(
-                    f"In {from_state} : command {index+1}, value {stmts[1].value} was never defined in the values part !"
+                    f"In {from_state} : command {index+1}, value '{stmts[1].value}' was never defined in the values part !"
                 )
                 return None
 
@@ -221,13 +221,13 @@ class Checker:
 
         if expr.value in self.states_defined and expr.value != "":
             self.error_NameState(
-                f"state '{expr.value} is already defined somewhere else !'"
+                f"state '{expr.value}' is already defined somewhere else !'"
             )
             return None
 
         if not body or body == []:
             self.error_NoCommands(
-                f"There is no command in the initial state {expr.value} !"
+                f"There is no command in the initial state '{expr.value}' !"
             )
             return None
 
@@ -235,7 +235,7 @@ class Checker:
 
         if self.initial_state:
             self.error_InitialState(
-                f"There already a initial state defined, so {expr.value} can not be too !"
+                f"There already a initial state defined, so '{expr.value}' can not be too !"
             )
             return None
 

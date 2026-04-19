@@ -5,6 +5,7 @@ __pycache__/
 og test/
 
 # to create errors in the parsing
+program examples/programs with errors (by Claude)/
 program examples/error.txt
 program examples/nothing.txt
 test.py

@@ -17,6 +17,7 @@ def main(file: str):
 
     print(machin.tape)
 
+    
 if __name__ == "__main__":
     FILE_NAME = "program examples/error.txt"
     main(FILE_NAME)

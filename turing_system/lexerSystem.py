@@ -1,7 +1,13 @@
-from .tokenSystem import Token, TokenType, lookup_ident, REST_KEYWORDS
+from .tokenSystem import (
+    
+    Token, 
+    TokenType, 
+    lookup_ident, 
+    REST_KEYWORDS
+
+)
 
 from typing import Any
-from sys import version_info
 
 class Lexer:
     
@@ -62,7 +68,6 @@ class Lexer:
               self.current_char in (' ', '\t', '\r', '\n'):
             
             if self.current_char == '\n':
-                self.line_no += 1
                 if not self.__peek_char_is("\n"):
                     return None
 
@@ -76,8 +81,8 @@ class Lexer:
                      line_no=self.line_no, position=self.position)
     
     def __is_char(self, char : str) -> bool:
-
-        return char not in (self.values_rest_ks + ("\t", "\r", " "))
+        
+        return char not in (self.values_rest_ks + ("\t", "\r", " ")) or char == "_"
 
     def __read_identifier(self) -> str:
 
@@ -94,7 +99,8 @@ class Lexer:
         self.__skip_spaces()
 
         if self.current_char == REST_KEYWORDS[TokenType.EOL]:
-            token = self.__new_token(TokenType.EOL, "\\n")
+            token = self.__new_token(TokenType.EOL, self.current_char)
+            self.line_no += 1
             self.__read_char()
             return token
 
@@ -112,6 +118,7 @@ class Lexer:
             if self.__is_char(self.__get_peek_char()):
                 literal = self.__read_identifier()
                 token_type = lookup_ident(literal)
+                self.__read_char()
                 return self.__new_token(token_type, literal)
             else:
                 token = self.__new_token(TokenType.NONE, REST_KEYWORDS[TokenType.NONE])
