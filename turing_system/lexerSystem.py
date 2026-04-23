@@ -26,11 +26,11 @@ class Lexer:
         self.values_rest_ks = tuple(REST_KEYWORDS.values())
         self.items_rest_ks = REST_KEYWORDS.items()
 
-        self.__read_char() # init.
+        self.read_char() # init.
 
         return None
 
-    def __read_char(self) -> None:
+    def read_char(self) -> None:
 
         # if we are exceeding the source
         if self.read_position >= len(self.source):
@@ -71,7 +71,7 @@ class Lexer:
                 if not self.__peek_char_is("\n"):
                     return None
 
-            self.__read_char()
+            self.read_char()
 
         return None
     
@@ -90,7 +90,7 @@ class Lexer:
         while self.current_char is not None and \
               self.__is_char(self.current_char):
             
-            self.__read_char()
+            self.read_char()
 
         return self.source[start:self.position]
 
@@ -101,13 +101,13 @@ class Lexer:
         if self.current_char == REST_KEYWORDS[TokenType.EOL]:
             token = self.__new_token(TokenType.EOL, self.current_char)
             self.line_no += 1
-            self.__read_char()
+            self.read_char()
             return token
 
         if self.current_char == '§':
             while self.current_char != REST_KEYWORDS[TokenType.EOL] and self.current_char is not None:
-                self.__read_char()
-            self.__read_char()
+                self.read_char()
+            self.read_char()
             self.line_no += 1
             return self.next_token()
 
@@ -118,11 +118,11 @@ class Lexer:
             if self.__is_char(self.__get_peek_char()):
                 literal = self.__read_identifier()
                 token_type = lookup_ident(literal)
-                self.__read_char()
+                self.read_char()
                 return self.__new_token(token_type, literal)
             else:
                 token = self.__new_token(TokenType.NONE, REST_KEYWORDS[TokenType.NONE])
-                self.__read_char()
+                self.read_char()
                 return token
 
         if self.__is_char(self.current_char):
@@ -133,9 +133,9 @@ class Lexer:
         for token_type, symbol in self.items_rest_ks:
             if self.current_char == symbol:
                 token = self.__new_token(token_type, self.current_char)
-                self.__read_char()
+                self.read_char()
                 return token
 
         token = self.__new_token(TokenType.ILLEGAL, self.current_char)
-        self.__read_char()
+        self.read_char()
         return token

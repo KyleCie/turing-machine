@@ -1,10 +1,11 @@
 from .tokenSystem import (
     
-    KEYWORDS, 
-    REST_KEYWORDS,
+    REVERSED_KEYWORDS,
     TokenType,
     
 )
+
+from .lexerSystem import Lexer
 
 from typing import TextIO
 from sys import version_info
@@ -44,10 +45,10 @@ class File:
     
     def add_action(self, element: TokenType | str, position: int) -> None:
         
-        self.actions_file.insert(0, (element, position))
+        self.actions_file.append((element, position))
 
         if len(self.actions_file) > 2 and position < self.actions_file[1][1]:
-            self.actions_file.sort(key=lambda x: x[1], reverse=True)
+            self.actions_file.sort(key=lambda x: x[1], reverse=False)
 
         return None
 
@@ -69,47 +70,43 @@ class File:
         return last_line+1 if last_was_line else index+1
 
     def do_action(self) -> None:
-        
-        keywords_values = KEYWORDS.values()
 
-        self.file_handler.seek(0)
-        content = self.content
+        if self.actions_file == []:
+            return None
 
-        last_pos = 0
-        delta_len = 0
+        lexer = Lexer(source=self.content)
+        content = ""
 
         for (element, pos) in self.actions_file:
 
+            good_pos = self.__find_index(self.content, pos)
+
+            while lexer.position < good_pos:
+                if lexer.current_char:
+                    content += lexer.current_char
+                    lexer.read_char()
+
             if isinstance(element, TokenType):
-                if element in keywords_values:
-                    info = REST_KEYWORDS.get(element, None)
-                    
-                    if info is None:
-                        self.file_handler.close()
-                        raise ValueError("Error when handling the TokenType in the File handler system.")
-                    
-                    word = info[0]
-                else:
+
+                info = REVERSED_KEYWORDS.get(element, None)
+                
+                if info is None:
                     self.file_handler.close()
-                    raise ValueError("Error with the token got from the parser.") 
+                    raise ValueError("Error when handling the TokenType in the File handler system.")
+                
+                word = info[0]
+
             else:
                 word = element
 
-            if pos == last_pos:
-                index = self.__find_index(content=content, position=pos+delta_len)
+            if content[-1].isalpha():
+                content += " " + str(word)
             else:
-                index = self.__find_index(content=content, position=pos)
+                content += str(word)
 
-            last_char = content[index-1]
-
-            if last_char.isalpha():
-                content = content[:index] + " " + str(word) + content[index:]
-                delta_len = len(str(word))+1
-            else:
-                content = content[:index] + str(word) + content[index:]
-                delta_len = len(str(word))
-        
-            last_pos = pos
+        while lexer.current_char:
+            content += lexer.current_char
+            lexer.read_char()
 
         self.file_handler.seek(0)
 
