@@ -152,7 +152,7 @@ class Checker:
 
             self.values.append(raw_value.value)
 
-        if self.values == []:
+        if not self.values:
             self.error_NoValues("There are no values in the values part of the code !")
 
         return None
@@ -160,60 +160,64 @@ class Checker:
     def __check_body_state(self, body: list[CommandStatement], from_state: str) -> None:
 
         self.states[from_state] = body
-        values_defined: list[str] = []
+        values_defined: set[str] = set()
+        _Stop  = NodeType.StopLiteral
+        _None  = NodeType.NoneLiteral
+        _Ident = NodeType.IdentifierLiteral
+        _Dir   = NodeType.DirectionLiteral
 
         for (index, command) in enumerate(body):
 
-            stmts = command.statements
+            stmts  = command.statements
+            s0     = stmts[0]
+            s1     = stmts[1]
+            s0_val = s0.value
+            s1_t   = s1.type()
 
-            if stmts[0].value in values_defined:
+            if s0_val in values_defined:
                 self.error_Command(
-                    f"In {from_state} : command {index+1}, value '{stmts[0].value}' is already defined !"
+                    f"In {from_state} : command {index+1}, value '{s0_val}' is already defined !"
                 )
                 return None
 
-            if stmts[0].type() != NodeType.NoneLiteral and stmts[0].value not in self.values:
+            if s0.type() != _None and s0_val not in self.values:
                 self.error_Command(
-                    f"In {from_state} : command {index+1}, value '{stmts[0].value}' was never defined in the values part !"
+                    f"In {from_state} : command {index+1}, value '{s0_val}' was never defined in the values part !"
                 )
                 return None
 
-            values_defined.append(stmts[0].value)
+            values_defined.add(s0_val)
 
-            if not (stmts[1].type() == NodeType.StopLiteral or stmts[1].type() == NodeType.NoneLiteral) and \
-                   (stmts[1].value not in self.values):
+            if s1_t != _Stop and s1_t != _None and stmts[1].value not in self.values:
                 self.error_Command(
                     f"In {from_state} : command {index+1}, value '{stmts[1].value}' was never defined in the values part !"
                 )
                 return None
 
-            if stmts[1].type() != NodeType.StopLiteral:
-                if stmts[2].type() != NodeType.IdentifierLiteral and stmts[2].type() != NodeType.NoneLiteral:
+            if s1_t != _Stop:
+                s2   = stmts[2]
+                s2_t = s2.type()
+
+                if s2_t != _Ident and s2_t != _None:
                     self.error_Command(
-                        f"In {from_state} : command {index+1}, '{stmts[2].value}' is not a state !"
+                        f"In {from_state} : command {index+1}, '{s2.value}' is not a state !"
                     )
                     return None
 
-                self.names_states.add(stmts[2].value)
+                self.names_states.add(s2.value)
 
-                if stmts[3].type() != NodeType.DirectionLiteral:
+                if stmts[3].type() != _Dir:
                     self.error_Command(
                         f"In {from_state} : command {index+1}, '{stmts[3].value}' is not a direction !"
                     )
 
         expected = set(self.values) | {REST_KEYWORDS[TokenType.NONE]}
-        actual = set(values_defined)
 
-        if actual != expected:
-            diffs = expected - actual
-            if len(diffs) > 1 and not self.silence:
-                self.warning(
-                    f"WARNING: in '{from_state}', {diffs} : those values are not defined !"
-                )
-            else:
-                self.warning(
-                    f"WARNING: in '{from_state}', {diffs} : this value is not defined !"
-                )
+        if values_defined != expected:
+            diffs = expected - values_defined
+            if not self.silence:
+                msg = "those values are not defined !" if len(diffs) > 1 else "this value is not defined !"
+                self.warning(f"WARNING: in '{from_state}', {diffs} : {msg}")
 
         return None
 
@@ -225,7 +229,7 @@ class Checker:
             )
             return None
 
-        if not body or body == []:
+        if not body:
             self.error_NoCommands(
                 f"There is no command in the initial state '{expr.value}' !"
             )
@@ -273,7 +277,7 @@ class Checker:
 
         self.code = True
 
-        if not body or body == []:
+        if not body:
             self.error_Tape(
                 f"There is no tape !"
             )
@@ -381,7 +385,7 @@ class Checker:
 
     def last_check(self) -> None:
 
-        if not (self.initial_state and self.code) and self.values == []: # no program.
+        if not (self.initial_state and self.code) and self.values: # no program.
             return None
 
         self.__check_if_states_good()

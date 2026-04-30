@@ -48,7 +48,7 @@ class Parser:
         self.current_token: Token | None = self.lexer.next_token()
         self.peek_token:    Token | None = self.lexer.next_token()
 
-        self.token_type_to_func: dict[TokenType, Callable] = {
+        self.token_type_to_func: dict[int, Callable] = {
 
             TokenType.IDENT: self.__parse_identifier,
             TokenType.NONE: self.__parse_none,
@@ -58,6 +58,10 @@ class Parser:
 
         }
 
+        self.__stop_types_STATE = {TokenType.END, TokenType.EOF}
+        self.__skip_types_SKIP = {TokenType.EOL, TokenType.COMMA}
+        self.__important_types = {TokenType.STATE, TokenType.INITIAL, TokenType.CODE, TokenType.VALUES, TokenType.EOF}
+
     def __next_token(self) -> None:
 
         self.current_token = self.peek_token
@@ -65,21 +69,19 @@ class Parser:
 
         return None
 
-    def __current_token_is(self, token_type: TokenType) -> bool:
+    def __current_token_is(self, token_type: int) -> bool:
 
         return self.current_token.type == token_type #type: ignore
     
-    def __peek_token_is(self, token_type: TokenType) -> bool:
+    def __peek_token_is(self, token_type: int) -> bool:
 
         return self.peek_token.type == token_type #type: ignore
     
     def __is_peek_token_important(self) -> bool:
 
-        return self.peek_token.type in ( #type: ignore
-            TokenType.STATE, TokenType.INITIAL, TokenType.CODE, TokenType.VALUES, TokenType.EOF
-            ) 
+        return self.peek_token.type in self.__important_types #type: ignore
 
-    def __expect_peek(self, token_type: TokenType) -> bool:
+    def __expect_peek(self, token_type: int) -> bool:
 
         if self.__peek_token_is(token_type):
             self.__next_token()
@@ -89,7 +91,7 @@ class Parser:
             self.__peek_error(token_type)
             return False
 
-    def __expect_current(self, token_type: TokenType) -> bool:
+    def __expect_current(self, token_type: int) -> bool:
 
         if self.__current_token_is(token_type):
             self.__next_token()
@@ -99,7 +101,7 @@ class Parser:
             self.__current_error(token_type)
             return False
 
-    def __current_error(self, token_type: TokenType) -> None:
+    def __current_error(self, token_type: int) -> None:
 
         if self.current_token.type == TokenType.EOL or self.__peek_token_is(TokenType.EOL): #type: ignore
             raise TypoError(f"Expected current token to be {token_type}, got " + 
@@ -108,7 +110,7 @@ class Parser:
             raise TypoError(f"Expected current token to be {token_type}, got " + 
                                 f"{self.current_token.type} instead. AT LINE {self.lexer.line_no}") #type: ignore
 
-    def __peek_error(self, token_type: TokenType) -> None:
+    def __peek_error(self, token_type: int) -> None:
 
         if self.current_token.type == TokenType.EOL or self.__peek_token_is(TokenType.EOL): #type: ignore
             raise TypoError(f"Expected next token to be {token_type}, got " + 
@@ -293,42 +295,47 @@ class Parser:
 
     def __parse_body_state_statement(self) -> list[CommandStatement] | None:
 
-        command_stmts = []
+        command_stmts: list[CommandStatement] = []
 
         self.__parse_colon_statement()
 
-        if self.__current_token_is(TokenType.COLON):
+        if self.current_token.type == TokenType.COLON: #type: ignore
             self.__next_token()
 
-        done = False
+        done       = False
+        _EOL       = TokenType.EOL
+        _EOF       = TokenType.EOF
+        _END       = TokenType.END
+        _COMMA     = TokenType.COMMA
+        _stop      = self.__stop_types_STATE
 
-        while not (self.__current_token_is(TokenType.END) or \
-                   self.__current_token_is(TokenType.EOF) or done):
-            
+        while self.current_token.type not in _stop and not done: #type: ignore
+
             done = self.__skip_spaces_statement()
 
-            if self.__current_token_is(TokenType.END) or done:
+            if self.current_token.type == _END or done: #type: ignore
                 break
 
-            command_stmt: CommandStatement = CommandStatement()
+            command_stmt = CommandStatement()
+            statements   = command_stmt.statements
 
-            while not self.__current_token_is(TokenType.EOL) and not done:
+            while self.current_token.type != _EOL and not done: #type: ignore
 
-                if self.__current_token_is(TokenType.COMMA):
+                if self.current_token.type == _COMMA: #type: ignore
                     self.__next_token()
 
                 stmt = self.__parse_expression()
 
                 if stmt:
-                    command_stmt.statements.append(stmt)
+                    statements.append(stmt)
 
-                if not self.__current_token_is(TokenType.EOL):
+                if self.current_token.type != _EOL: #type: ignore
                     self.__next_token()
 
-                if self.__current_token_is(TokenType.EOF):
+                if self.current_token.type == _EOF: #type: ignore
                     break
 
-            if command_stmt.statements == []:
+            if not statements:
                 self.__next_token()
                 done = True
                 break
@@ -380,8 +387,8 @@ class Parser:
     
     def __parse_colon_statement(self) -> None:
 
-        if not self.__peek_token_is(TokenType.COLON):
-            if self.__peek_token_is(TokenType.EOL):
+        if not self.peek_token.type == TokenType.COLON: #type: ignore
+            if self.peek_token.type == TokenType.EOL: #type: ignore
                 if not self.silence:
                     self.checker.warning(
                         f"WARNING: you forgot to add a colon at line {self.lexer.line_no-1}."
@@ -399,14 +406,12 @@ class Parser:
         done = False
         last_index = self.lexer.position
 
-        while  (self.__current_token_is(TokenType.EOL) or \
-                self.__current_token_is(TokenType.COMMA)) and \
-            not self.__peek_token_is(TokenType.END):
+        while self.current_token.type in self.__skip_types_SKIP and self.peek_token.type != TokenType.END: # type: ignore
             
-            if self.__is_peek_token_important():
+            if self.peek_token.type in self.__important_types: #type: ignore
                 done = True
                 if not self.silence:
-                    if self.__peek_token_is(TokenType.EOF):
+                    if self.peek_token.type == TokenType.EOF: #type: ignore
                         self.checker.warning(
                             f"WARNING: you forgot to add an 'END' at line {self.lexer.line_no}."
                         )

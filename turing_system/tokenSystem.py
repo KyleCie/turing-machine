@@ -1,34 +1,35 @@
-from enum import Enum
 from typing import Any
 
-class TokenType(Enum):
+class TokenType:
 
     # Specials Tokens
-    EOL     = "EOL"         # END OF LINE
-    EOF     = "EOF"         # END OF FILE
-    ILLEGAL = "ILLEGAL"     # ILLEGAL THING
+    EOL     = 1   # END OF LINE
+    EOF     = 0   # END OF FILE
+    ILLEGAL = 2   # ILLEGAL THING
 
     # Data types
-    IDENT   = "IDENT"       # IDENTIFY STATE, VALUES, ...
-    NONE    = "NONE"        # NONE TYPE
+    IDENT   = 3   # IDENTIFY STATE, VALUES, ...
+    NONE    = 4   # NONE TYPE
 
     # Symbols
-    COLON   = "COLON"       # DECLARATION STATE, VALUES
-    COMMA   = "COMMA"       # SEPERATOR
-    RIGHT   = "RIGHT"       # GO TO RIGHT
-    LEFT    = "LEFT"        # GO TO LEFT
-    STOP    = "STOP"        # STOP THE MACHINE
-    END     = "END"         # END PART OF CLASS
+    COLON   = 5   # DECLARATION STATE, VALUES
+    COMMA   = 6   # SEPERATOR
+    RIGHT   = 7   # GO TO RIGHT
+    LEFT    = 8   # GO TO LEFT
+    STOP    = 9   # STOP THE MACHINE
+    END     = 10  # END PART OF CLASS
 
     # Keywords elements
-    VALUES  = "VALUES"      # VALUES CLASS
-    STATE   = "STATE"       # STATE  CLASS
-    INITIAL = "INITIAL"     # INITIAL STATE
-    CODE    = "CODE"        # CODE   CLASS
+    VALUES  = 11  # VALUES CLASS
+    STATE   = 12  # STATE  CLASS
+    INITIAL = 13 # INITIAL STATE
+    CODE    = 14  # CODE   CLASS
 
 class Token:
 
-    def __init__(self, type: TokenType, literal: Any, 
+    __slots__ = ('type', 'literal', 'line_no', 'position')
+
+    def __init__(self, type: int, literal: Any, 
                  line_no: int, position: int) -> None:
         
         self.type = type
@@ -46,7 +47,7 @@ class Token:
         
         return self.__str__()
     
-KEYWORDS: dict[str, TokenType] = {
+KEYWORDS: dict[str, int] = {
 
     "values":  TokenType.VALUES,
     "state":   TokenType.STATE,
@@ -61,7 +62,7 @@ KEYWORDS: dict[str, TokenType] = {
 
 }
 
-REVERSED_KEYWORDS: dict[TokenType, tuple[str, ...]] = {
+REVERSED_KEYWORDS: dict[int, tuple[str, ...]] = {
 
     TokenType.VALUES:  ("values",),
     TokenType.STATE:   ("state",),
@@ -74,7 +75,7 @@ REVERSED_KEYWORDS: dict[TokenType, tuple[str, ...]] = {
 
 }
 
-REST_KEYWORDS: dict[TokenType, str] = {
+REST_KEYWORDS: dict[int, str] = {
 
     TokenType.COLON: ":",
     TokenType.NONE:  "_",
@@ -83,11 +84,6 @@ REST_KEYWORDS: dict[TokenType, str] = {
 
 }
 
-def lookup_ident(ident: str) -> TokenType:
+def lookup_ident(ident: str) -> int:
 
-    tt: TokenType | None = KEYWORDS.get(ident.lower())
-
-    if tt is not None: # found in the keywords
-        return tt
-    
-    return TokenType.IDENT
+    return KEYWORDS.get(ident.lower(), TokenType.IDENT)
