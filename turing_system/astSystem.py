@@ -72,6 +72,7 @@ class IdentifierLiteral(Literal):
     def __init__(self, value: str) -> None:
         
         self.value: str = value
+        return None
     
     def type(self) -> NodeType:
         
@@ -89,6 +90,7 @@ class NoneLiteral(Literal):
     def __init__(self, value: str) -> None:
         
         self.value: str = value
+        return None
     
     def type(self) -> NodeType:
         
@@ -106,6 +108,7 @@ class StopLiteral(Literal):
     def __init__(self, value: str) -> None:
         
         self.value: str = value
+        return None
     
     def type(self) -> NodeType:
         
@@ -123,6 +126,7 @@ class StateLiteral(Literal):
     def __init__(self, value: str) -> None:
         
         self.value: str = value
+        return None
     
     def type(self) -> NodeType:
         
@@ -140,6 +144,7 @@ class DirectionLiteral(Literal):
     def __init__(self, value: str) -> None:
         
         self.value: str = value
+        return None
     
     def type(self) -> NodeType:
         
@@ -157,6 +162,7 @@ class EndLiteral(Literal):
     def __init__(self, value: str) -> None:
         
         self.value: str = value
+        return None
     
     def type(self) -> NodeType:
         

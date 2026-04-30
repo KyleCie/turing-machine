@@ -4,8 +4,12 @@ __pycache__/
 # og version
 og test/
 
+# infos files
+before_result.txt
+
 # to create errors in the parsing
 program examples/programs with errors (by Claude)/
 program examples/error.txt
 program examples/nothing.txt
+program examples/ultra_long.txt
 test.py

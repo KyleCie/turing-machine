@@ -62,7 +62,7 @@ class Turing:
         # Turing machin itself
         self.name_state = self.initial_state
 
-        if self.initial_state:
+        if self.initial_state is not None :
             self.on_state: dict[str, Transition] = self.states[self.initial_state]
         else: # no program.
             raise RuntimeError("There is no program !")
