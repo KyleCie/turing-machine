@@ -40,10 +40,6 @@ class File:
     def add_action(self, element: int | str, position: int) -> None:
         
         self.actions_file.append((element, position))
-
-        if len(self.actions_file) > 2 and position < self.actions_file[-2][1]:
-            self.actions_file.sort(key=lambda x: x[1])
-
         return None
 
     def __find_index(self, position: int) -> int:
@@ -51,6 +47,8 @@ class File:
         last_line     = 0
         last_was_line = False
         max_idx       = min(position, self.length)
+
+        self.actions_file.sort(key=lambda x: x[1])
 
         for index in range(max_idx):
             if self.content[index] == "\n":

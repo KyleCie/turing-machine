@@ -211,10 +211,10 @@ class CommandStatement(Statement):
         }
 
 class StateStatement(Statement):
-    def __init__(self, name: StateLiteral, 
+    def __init__(self, name: IdentifierLiteral, 
                        commands: list[CommandStatement] | None = None) -> None:
         
-        self.name = name
+        self.name: IdentifierLiteral = name
         self.commands: list[CommandStatement] = commands if commands else []
         return None
 
@@ -231,10 +231,10 @@ class StateStatement(Statement):
         }
 
 class InitialStateStatement(Statement):
-    def __init__(self, name: StateLiteral, 
+    def __init__(self, name: IdentifierLiteral, 
                        commands: list[CommandStatement] | None = None) -> None:
         
-        self.name: StateLiteral = name
+        self.name: IdentifierLiteral = name
         self.commands: list[CommandStatement] = commands if commands else []
         return None
 

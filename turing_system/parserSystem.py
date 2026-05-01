@@ -23,7 +23,7 @@ from .astSystem import (
 from .lexerSystem import Lexer
 from .checkerSystem import Checker
 from .fileSystem import File
-from .tokenSystem import TokenType, Token
+from .tokenSystem import TokenType, Token, REST_KEYWORDS
 from .errorsSystem import TypoError
 
 from sys import version_info
@@ -80,26 +80,6 @@ class Parser:
     def __is_peek_token_important(self) -> bool:
 
         return self.peek_token.type in self.__important_types #type: ignore
-
-    def __expect_peek(self, token_type: int) -> bool:
-
-        if self.__peek_token_is(token_type):
-            self.__next_token()
-            return True
-        
-        else:
-            self.__peek_error(token_type)
-            return False
-
-    def __expect_current(self, token_type: int) -> bool:
-
-        if self.__current_token_is(token_type):
-            self.__next_token()
-            return True
-        
-        else:
-            self.__current_error(token_type)
-            return False
 
     def __current_error(self, token_type: int) -> None:
 
@@ -238,9 +218,6 @@ class Parser:
             )
             return None
 
-        if expr.type() == NodeType.IdentifierLiteral:
-            expr = StateLiteral(expr.value)
-
         body = self.__parse_body_state_statement()
 
         if self.__current_token_is(TokenType.END):
@@ -260,9 +237,6 @@ class Parser:
             )
             return None
 
-        if expr.type() == NodeType.IdentifierLiteral:
-            expr = StateLiteral(expr.value)
-
         body = self.__parse_body_state_statement()
 
         if self.__current_token_is(TokenType.END):
@@ -276,14 +250,13 @@ class Parser:
 
         line = 0
 
-        if not self.__peek_token_is(TokenType.IDENT):
-            if not (self.__peek_token_is(TokenType.COLON) or \
-                   self.__peek_token_is(TokenType.EOL)):
+        if self.peek_token.type != TokenType.IDENT: #type: ignore
+            if not (self.peek_token.type != TokenType.COLON or self.peek_token.type != TokenType.EOL): #type: ignore
                 self.__peek_error(TokenType.IDENT) # create error.
                 return
             else:
                 expr = IdentifierLiteral("")
-                if self.__peek_token_is(TokenType.EOL):
+                if self.peek_token.type != TokenType.EOL: #type: ignore
                     line = self.lexer.line_no - 1
                 else:
                     line = self.lexer.line_no
@@ -363,13 +336,11 @@ class Parser:
 
         self.__next_token()
 
-        while not (self.__current_token_is(TokenType.END) or \
-                   self.__current_token_is(TokenType.EOF) or \
-                   done):
+        while self.current_token.type != TokenType.END or self.current_token.type != TokenType.EOF or not done: #type: ignore
 
             done = self.__skip_spaces_statement()
 
-            if self.__peek_token_is(TokenType.END) or done:
+            if self.peek_token.type == TokenType.END or done: #type: ignore
                 self.__next_token()
                 break
 
@@ -377,8 +348,7 @@ class Parser:
 
             if stmt is not None:
                 tape_stmts.append(stmt) #type: ignore
-            elif not self.__current_token_is(TokenType.EOL) and \
-                 not self.__is_peek_token_important():
+            elif self.current_token.type != TokenType.EOL and self.peek_token.type not in self.__important_types: #type: ignore
                 self.__current_error(TokenType.IDENT)
 
             self.__next_token()
@@ -394,7 +364,7 @@ class Parser:
                         f"WARNING: you forgot to add a colon at line {self.lexer.line_no-1}."
                     )
                     if not self.is_source_txt:
-                        self.file.add_action(":", self.lexer.position-1)
+                        self.file.add_action(REST_KEYWORDS[TokenType.COLON], self.lexer.position-1)
                     self.__next_token()
             else:
                 self.__peek_error(TokenType.COLON)

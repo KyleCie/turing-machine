@@ -1,7 +1,7 @@
 from .tokenSystem import (
     Token, 
     TokenType, 
-    lookup_ident, 
+    KEYWORDS, 
     REST_KEYWORDS
 )
 
@@ -66,7 +66,7 @@ class Lexer:
                 tokens.append(Token(TokenType.NONE, s, line_no, pos))
                 continue
 
-            tokens.append(Token(lookup_ident(s), s, line_no, pos))
+            tokens.append(Token(KEYWORDS.get(s.lower(), TokenType.IDENT), s, line_no, pos))
 
         tokens.append(Token(TokenType.EOF, '', line_no, len(source)))
 

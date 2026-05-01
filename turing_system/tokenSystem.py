@@ -83,7 +83,3 @@ REST_KEYWORDS: dict[int, str] = {
     TokenType.EOL:   "\n",
 
 }
-
-def lookup_ident(ident: str) -> int:
-
-    return KEYWORDS.get(ident.lower(), TokenType.IDENT)

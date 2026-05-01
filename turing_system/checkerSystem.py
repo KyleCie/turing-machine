@@ -62,7 +62,7 @@ class Checker:
 
         self.values: list[str] = []
 
-        self.no_names_states: list[StateLiteral]    = []
+        self.no_names_states: list[IdentifierLiteral]    = []
         self.no_names_index:  list[tuple[int, int]] = []
 
         self.states: dict[str, list[CommandStatement]] = {}
@@ -221,7 +221,7 @@ class Checker:
 
         return None
 
-    def __check_content_state(self, expr: StateLiteral, body: list[CommandStatement] | None) -> None:
+    def __check_content_state(self, expr: IdentifierLiteral, body: list[CommandStatement] | None) -> None:
 
         if expr.value in self.states_defined and expr.value != "":
             self.error_NameState(
@@ -235,7 +235,7 @@ class Checker:
             )
             return None
 
-    def check_initial_state(self, expr: StateLiteral, body: list[CommandStatement] | None, index: tuple[int, int] = (0, 0)) -> None:
+    def check_initial_state(self, expr: IdentifierLiteral, body: list[CommandStatement] | None, index: tuple[int, int] = (0, 0)) -> None:
 
         if self.initial_state:
             self.error_InitialState(
@@ -256,7 +256,7 @@ class Checker:
 
         self.__check_body_state(body, from_state=expr.value) #type: ignore
 
-    def check_state(self, expr: StateLiteral, body: list[CommandStatement] | None, index: tuple[int, int] = (0, 0)) -> None:
+    def check_state(self, expr: IdentifierLiteral, body: list[CommandStatement] | None, index: tuple[int, int] = (0, 0)) -> None:
 
         if expr.value == "":
             self.no_names_states.append(expr)
@@ -358,8 +358,7 @@ class Checker:
 
             return states_seen
 
-        result = __recursive_search(self.initial_name)
-        unused = self.states_defined - result
+        unused = self.states_defined - __recursive_search(self.initial_name)
 
         if unused:
             if not self.silence:
