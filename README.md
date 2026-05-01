@@ -44,6 +44,7 @@ turing-machine/
 ├──── errorsSystem.py         # errors formatting system
 │
 ├── turing_machin
+├──── GraphicSystem.py        # the graphic logic.
 ├──── turingSystem.py         # the 'core' of the machin.
 ├──── tapeSystem.py           # the tape (double-linked chain) system.
 │
@@ -334,13 +335,14 @@ When the parser have the TextIOWrapper, it will automaticly resolve the warnings
 
 ## Future Improvements
 
-- Breakpoints
-- GUI interface
+- Optimizing
 
 ---
 
 ## Updates
 
+- 01/05/26, [see commit](https://github.com/KyleCie/turing-machine/commit/49976340adbe4fb5094f79d9d42142f2742fccc4) : Redone the lexer and a lot of thing to optimize the parsing system ; with the same file, 0.065sec to 0.011sec, 234940 functions calls down to 37057. More than  80% difference in speed.
+- 30/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/02a45576fefe7b80192ff28aa1a672403340024f) : First version of a graphic system for the Turing machin. 
 - 17/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/79445b7ea119c07a1ded61630ba3466f57dfb5b9) : Implemented a new logic for the keywords so it can be more modular, and can fixes bugs into the future of the project.
 - 17/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/9ef90080ad86c8dc2ef2c5ec5bb6fa06b2b84b75) : Added an system to find if there is a possibility (or "path") to go on all the states, if not it's because the states will technically never be used. Added the silencer on the checker from the parser. Better errors handler in the machin.
 - 15/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/202a7568ef815d277b532d208fbb8d3af29b6e5c) : Added an auto typos corrector in program files, bugfix for the parser with the 'end of file' handling, even better handler of TypoError.
