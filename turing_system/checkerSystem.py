@@ -313,7 +313,20 @@ class Checker:
             if len(undefined) == len(self.no_names_states):
 
                 if len(undefined) == 1:
-                    self.no_names_states[0].value = undefined.pop()
+                    state_name = undefined.pop()
+
+                    state = self.states.get("", None)
+                    if state:
+                        self.states[state_name] = state
+                        del self.states[""]
+
+                    if self.initial_name == "":
+                        self.initial_name = state_name
+
+                    self.states_defined.add(state_name)
+                    self.states_defined.remove("")
+
+                    self.no_names_states[0].value = state_name
                     self.states_defined.add(self.no_names_states[0].value)
                     self.big_warning(
                         f"WARNING: you forgot to write the name of a state, but it was automatically added (LINE: {self.no_names_index[0][0]}), the name is '{self.no_names_states[0].value}'."
