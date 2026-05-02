@@ -175,7 +175,7 @@ class Parser:
 
         return values_stmt
 
-    def __parse_value_body_statement(self) -> list[IdentifierLiteral] | None:
+    def __parse_value_body_statement(self) -> list[Literal] | None:
 
         literals_stmt = []
 
@@ -246,7 +246,7 @@ class Parser:
 
         return StateStatement(expr, body) #type: ignore
 
-    def __parse_name_state_statement(self) -> tuple[IdentifierLiteral, int, int] | None:
+    def __parse_name_state_statement(self) -> tuple[Literal, int, int] | None:
 
         line = 0
 
@@ -407,18 +407,18 @@ class Parser:
 
         return result
 
-    def __parse_identifier(self) -> IdentifierLiteral:
+    def __parse_identifier(self) -> Literal:
 
         return IdentifierLiteral(self.current_token.literal) #type: ignore
     
-    def __parse_none(self) -> NoneLiteral:
+    def __parse_none(self) -> Literal:
 
         return NoneLiteral(self.current_token.literal) #type: ignore
     
-    def __parse_direction(self) -> DirectionLiteral:
+    def __parse_direction(self) -> Literal:
 
         return DirectionLiteral(self.current_token.literal) #type: ignore
     
-    def __parse_stop(self) -> StopLiteral:
+    def __parse_stop(self) -> Literal:
 
         return StopLiteral(self.current_token.literal) #type: ignore

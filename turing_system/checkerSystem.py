@@ -62,7 +62,7 @@ class Checker:
 
         self.values: list[str] = []
 
-        self.no_names_states: list[IdentifierLiteral]    = []
+        self.no_names_states: list[Literal]    = []
         self.no_names_index:  list[tuple[int, int]] = []
 
         self.states: dict[str, list[CommandStatement]] = {}
@@ -172,7 +172,7 @@ class Checker:
             s0     = stmts[0]
             s1     = stmts[1]
             s0_val = s0.value
-            s1_t   = s1.type()
+            s1_t   = s1.node_type
 
             if s0_val in values_defined:
                 self.error_Command(
@@ -180,7 +180,7 @@ class Checker:
                 )
                 return None
 
-            if s0.type() != _None and s0_val not in self.values:
+            if s0.node_type != _None and s0_val not in self.values:
                 self.error_Command(
                     f"In {from_state} : command {index+1}, value '{s0_val}' was never defined in the values part !"
                 )
@@ -196,7 +196,7 @@ class Checker:
 
             if s1_t != _Stop:
                 s2   = stmts[2]
-                s2_t = s2.type()
+                s2_t = s2.node_type
 
                 if s2_t != _Ident and s2_t != _None:
                     self.error_Command(
@@ -206,7 +206,7 @@ class Checker:
 
                 self.names_states.add(s2.value)
 
-                if stmts[3].type() != _Dir:
+                if stmts[3].node_type != _Dir:
                     self.error_Command(
                         f"In {from_state} : command {index+1}, '{stmts[3].value}' is not a direction !"
                     )
@@ -221,7 +221,7 @@ class Checker:
 
         return None
 
-    def __check_content_state(self, expr: IdentifierLiteral, body: list[CommandStatement] | None) -> None:
+    def __check_content_state(self, expr: Literal, body: list[CommandStatement] | None) -> None:
 
         if expr.value in self.states_defined and expr.value != "":
             self.error_NameState(
@@ -235,7 +235,7 @@ class Checker:
             )
             return None
 
-    def check_initial_state(self, expr: IdentifierLiteral, body: list[CommandStatement] | None, index: tuple[int, int] = (0, 0)) -> None:
+    def check_initial_state(self, expr: Literal, body: list[CommandStatement] | None, index: tuple[int, int] = (0, 0)) -> None:
 
         if self.initial_state:
             self.error_InitialState(
@@ -256,7 +256,7 @@ class Checker:
 
         self.__check_body_state(body, from_state=expr.value) #type: ignore
 
-    def check_state(self, expr: IdentifierLiteral, body: list[CommandStatement] | None, index: tuple[int, int] = (0, 0)) -> None:
+    def check_state(self, expr: Literal, body: list[CommandStatement] | None, index: tuple[int, int] = (0, 0)) -> None:
 
         if expr.value == "":
             self.no_names_states.append(expr)
@@ -349,7 +349,7 @@ class Checker:
                 if len(stmts) <= 2:
                     continue
 
-                if stmts[2].type() == NodeType.NoneLiteral:
+                if stmts[2].node_type == NodeType.NoneLiteral:
                     continue
 
                 if not stmts[2].value in states_seen:

@@ -102,7 +102,7 @@ class Turing:
 
             for stmt in raw_statements:
 
-                match stmt.type():
+                match stmt.node_type: #type: ignore
                     
                     case NodeType.ValuesStatement:
                         for literal in stmt.literals: # type: ignore
@@ -135,7 +135,7 @@ class Turing:
 
             for stmt in raw_statements:
 
-                stmt_type = stmt.type()
+                stmt_type = stmt.node_type #type: ignore
   
                 if stmt_type == NodeType.ValuesStatement:
                     for literal in stmt.literals: # type: ignore

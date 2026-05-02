@@ -22,247 +22,137 @@ class NodeType:
     DirectionLiteral      = 13
     EndLiteral            = 14
 
+
 class Node(ABC):
 
     @abstractmethod
-    def type(self) -> int:
-        """return the NodeType"""
+    def json(self) -> dict:
+        """return the JSON representation of the AST Node"""
         pass
 
-    @abstractmethod
-    def json(self) -> dict:
-        """return the JSON represention of the AST Node"""
-        pass
 
 class Statement(Node):
     pass
 
+
 class Literal(Node):
+    __slots__ = ('value', 'node_type')
 
-    def __init__(self, value: str) -> None:
-        self.value = value
+    def __init__(self, value: str, node_type: int) -> None:
+        self.value     = value
+        self.node_type = node_type
 
-    pass
+    def json(self) -> dict:
+        return {"type": self.node_type, "value": self.value}
+
+
+def IdentifierLiteral(value: str) -> Literal:
+    return Literal(value, NodeType.IdentifierLiteral)
+
+def NoneLiteral(value: str) -> Literal:
+    return Literal(value, NodeType.NoneLiteral)
+
+def StopLiteral(value: str) -> Literal:
+    return Literal(value, NodeType.StopLiteral)
+
+def StateLiteral(value: str) -> Literal:
+    return Literal(value, NodeType.StateLiteral)
+
+def DirectionLiteral(value: str) -> Literal:
+    return Literal(value, NodeType.DirectionLiteral)
+
+def EndLiteral(value: str) -> Literal:
+    return Literal(value, NodeType.EndLiteral)
+
 
 class Program(Node):
-    """Root AST Node"""
+    __slots__ = ('statements', 'node_type')
 
     def __init__(self) -> None:
-        
         self.statements: list[Statement] = []
-        return None
-    
-    def type(self) -> int:
+        self.node_type = NodeType.Program
 
-        return NodeType.Program
-    
     def json(self) -> dict:
-
         return {
-            "type":       self.type(),
+            "type":       self.node_type,
             "statements": [
-                           {stmt.type(): stmt.json()} 
-                           for stmt in self.statements
-                          ]
+                {stmt.node_type: stmt.json()} #type: ignore
+                for stmt in self.statements
+            ]
         }
 
-class IdentifierLiteral(Literal):
-
-    def __init__(self, value: str) -> None:
-        
-        self.value: str = value
-        return None
-    
-    def type(self) -> int:
-        
-        return NodeType.IdentifierLiteral
-    
-    def json(self) -> dict:
-        
-        return {
-            "type":  self.type(),
-            "value": self.value
-        }
-
-class NoneLiteral(Literal):
-
-    def __init__(self, value: str) -> None:
-        
-        self.value: str = value
-        return None
-    
-    def type(self) -> int:
-        
-        return NodeType.NoneLiteral
-    
-    def json(self) -> dict:
-        
-        return {
-            "type":  self.type(),
-            "value": self.value
-        }
-
-class StopLiteral(Literal):
-
-    def __init__(self, value: str) -> None:
-        
-        self.value: str = value
-        return None
-    
-    def type(self) -> int:
-        
-        return NodeType.StopLiteral
-    
-    def json(self) -> dict:
-        
-        return {
-            "type":  self.type(),
-            "value": self.value
-        }
-
-class StateLiteral(Literal):
-
-    def __init__(self, value: str) -> None:
-        
-        self.value: str = value
-        return None
-    
-    def type(self) -> int:
-        
-        return NodeType.StateLiteral
-    
-    def json(self) -> dict:
-        
-        return {
-            "type":  self.type(),
-            "value": self.value
-        }
-
-class DirectionLiteral(Literal):
-
-    def __init__(self, value: str) -> None:
-        
-        self.value: str = value
-        return None
-    
-    def type(self) -> int:
-        
-        return NodeType.DirectionLiteral
-    
-    def json(self) -> dict:
-        
-        return {
-            "type":  self.type(),
-            "value": self.value
-        }
-
-class EndLiteral(Literal):
-
-    def __init__(self, value: str) -> None:
-        
-        self.value: str = value
-        return None
-    
-    def type(self) -> int:
-        
-        return NodeType.EndLiteral
-    
-    def json(self) -> dict:
-        
-        return {
-            "type":  self.type(),
-            "value": self.value
-        }
-    
-class ValuesStatement(Statement):
-
-    def __init__(self, literals: list[IdentifierLiteral] | None = None) -> None:
-        
-        self.literals = literals if literals else []
-        return None
-
-    def type(self) -> int:
-
-        return NodeType.ValuesStatement
-    
-    def json(self) -> dict:
-
-        return {
-            "type": self.type(),
-            "literals": [literal.json() for literal in self.literals]
-        }
 
 class CommandStatement(Statement):
+    __slots__ = ('statements', 'node_type')
 
     def __init__(self, statements: list[Literal] | None = None) -> None:
-
         self.statements = statements if statements is not None else []
-        return None
+        self.node_type  = NodeType.CommandStatement
 
-    def type(self) -> int:
-        
-        return NodeType.CommandStatement
-    
     def json(self) -> dict:
-
         return {
-            "type":       self.type(),
+            "type":       self.node_type,
             "statements": [stmt.json() for stmt in self.statements]
         }
 
-class StateStatement(Statement):
-    def __init__(self, name: IdentifierLiteral, 
-                       commands: list[CommandStatement] | None = None) -> None:
-        
-        self.name: IdentifierLiteral = name
-        self.commands: list[CommandStatement] = commands if commands else []
-        return None
 
-    def type(self) -> int:
+class ValuesStatement(Statement):
+    __slots__ = ('literals', 'node_type')
 
-        return NodeType.StateStatement
-    
+    def __init__(self, literals: list[Literal] | None = None) -> None:
+        self.literals  = literals if literals else []
+        self.node_type = NodeType.ValuesStatement
+
     def json(self) -> dict:
-
         return {
-            "type": self.type(),
-            "name": self.name.json(),
+            "type":     self.node_type,
+            "literals": [literal.json() for literal in self.literals]
+        }
+
+
+class StateStatement(Statement):
+    __slots__ = ('name', 'commands', 'node_type')
+
+    def __init__(self, name: Literal,
+                       commands: list[CommandStatement] | None = None) -> None:
+        self.name     = name
+        self.commands = commands if commands else []
+        self.node_type = NodeType.StateStatement
+
+    def json(self) -> dict:
+        return {
+            "type":     self.node_type,
+            "name":     self.name.json(),
             "commands": [command.json() for command in self.commands]
         }
+
 
 class InitialStateStatement(Statement):
-    def __init__(self, name: IdentifierLiteral, 
+    __slots__ = ('name', 'commands', 'node_type')
+
+    def __init__(self, name: Literal,
                        commands: list[CommandStatement] | None = None) -> None:
-        
-        self.name: IdentifierLiteral = name
-        self.commands: list[CommandStatement] = commands if commands else []
-        return None
+        self.name      = name
+        self.commands  = commands if commands else []
+        self.node_type = NodeType.InitialStateStatement
 
-    def type(self) -> int:
-
-        return NodeType.InitialStateStatement
-    
     def json(self) -> dict:
-
         return {
-            "type": self.type(),
-            "name": self.name.json(),
+            "type":     self.node_type,
+            "name":     self.name.json(),
             "commands": [command.json() for command in self.commands]
         }
 
+
 class CodeStatement(Statement):
+    __slots__ = ('tape', 'node_type')
+
     def __init__(self, tape: list[Literal] | None = None) -> None:
-        
-        self.tape: list[Literal] = tape if tape else []
-        return None
+        self.tape      = tape if tape else []
+        self.node_type = NodeType.CodeStatement
 
-    def type(self) -> int:
-
-        return NodeType.CodeStatement
-    
     def json(self) -> dict:
-
         return {
-            "type": self.type(),
+            "type": self.node_type,
             "tape": [case.json() for case in self.tape]
         }
