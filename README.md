@@ -2,8 +2,6 @@
 
 ## Introduction
 
-> ⚠️ This project is not completly functioning, it's being actively programmed. (but the 'core' of the project should work now !)
-
 This project is a **Turing Machine emulator** implemented in Python, featuring a custom **domain-specific language (DSL)** for defining machines in a `.txt` file.
 
 It simulates the classical mathematical model:
@@ -36,7 +34,7 @@ turing-machine/
 │
 ├── turing_system
 ├──── astSystem.py            # formatting system
-├──── tokenSystem.py          # usable block for the DSL and the system
+├──── tokenSystem.py          # usable 'block' for the DSL and the system
 ├──── lexerSystem.py          # transform file to tokens
 ├──── parserSystem.py         # transform tokens to usable informations
 ├──── fileSystem.py           # file (TextIOWrapper) handler.
@@ -49,11 +47,11 @@ turing-machine/
 ├──── tapeSystem.py           # the tape (double-linked chain) system.
 │
 ├── program examples
-├──── invert_A_and_B.txt      # example for a simple inverter system.
-├──── is_a_multiple_of_2.txt  # example for a program that add a 'Y' or 'N' at the end of the number to say if the number is indeed a multiple of 2.
-├──── shift_by_one_case.txt   # example for a program that shift one case to the right the binary number in the tape.
-├──── binary_increment.txt    # example for a program that increment by 1 a binary number in the tape.
-├──── copy.txt                # example for a program that copy (and add an '#' to separate) any binary number in the tape.
+├──── invert_A_and_B.txt      # simple inverter system.
+├──── is_a_multiple_of_2.txt  # add a 'Y' or 'N' at the end of the number to say if the number is indeed a multiple of 2.
+├──── shift_by_one_case.txt   # shift one case to the right the binary number in the tape.
+├──── binary_increment.txt    # increment by 1 a binary number in the tape.
+├──── copy.txt                # copy (and add an '#' to separate) any binary number in the tape.
 │
 ├── .gitignore
 ├── LICENSE
@@ -341,6 +339,8 @@ When the parser have the TextIOWrapper, it will automaticly resolve the warnings
 
 ## Updates
 
+- 02/O5/26, [see commit](https://github.com/KyleCie/turing-machine/commit/dd22ee100251a38bc3abd5998def30d2fd3d474a) : bugfix with the logic of the checker system with no name's states and the recursive states search.
+- 02/05/26, [see commit 1](https://github.com/KyleCie/turing-machine/commit/b02b8cb06e31aa7799f0620bd1ffab44e1c92e09), [see commit 2](https://github.com/KyleCie/turing-machine/commit/0600aa712a4215114f25e26514eee7cbf8507332) : some more optimizations but no real results.
 - 01/05/26, [see commit](https://github.com/KyleCie/turing-machine/commit/49976340adbe4fb5094f79d9d42142f2742fccc4) : Redone the lexer and a lot of thing to optimize the parsing system ; with the same file, 0.065sec to 0.011sec, 234940 functions calls down to 37057. More than  80% difference in speed.
 - 30/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/02a45576fefe7b80192ff28aa1a672403340024f) : First version of a graphic system for the Turing machin. 
 - 17/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/79445b7ea119c07a1ded61630ba3466f57dfb5b9) : Implemented a new logic for the keywords so it can be more modular, and can fixes bugs into the future of the project.
