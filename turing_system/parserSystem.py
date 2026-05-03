@@ -325,14 +325,15 @@ class Parser:
         
         self.__next_token()
 
-        self.checker.check_code(body)
+        self.checker.check_code(body[0])
 
-        return CodeStatement(body)
+        return CodeStatement(*body)
 
-    def __parse_body_code_statement(self) -> list[Literal] | None:
+    def __parse_body_code_statement(self) -> tuple[list[Literal], int] :
 
         tape_stmts: list[Literal] = []
-        done = False
+        value: int = 0
+        done: bool = False
 
         self.__next_token()
 
@@ -347,13 +348,23 @@ class Parser:
             stmt = self.__parse_expression()
 
             if stmt is not None:
-                tape_stmts.append(stmt) #type: ignore
+                if stmt.value != "start":
+                    tape_stmts.append(stmt) #type: ignore
+                else:
+                    if self.peek_token.type == TokenType.COLON: #type: ignore
+                        self.__next_token()
+                        if self.peek_token.type == TokenType.IDENT: #type: ignore
+                            self.__next_token()
+                            try:
+                                value = int(self.current_token.literal) #type: ignore
+                            except:
+                                self.checker.error_Code(f"{self.current_token.literal} is not a number for the start index !") #type: ignore
             elif self.current_token.type != TokenType.EOL and self.peek_token.type not in self.__important_types: #type: ignore
                 self.__current_error(TokenType.IDENT)
 
             self.__next_token()
 
-        return tape_stmts
+        return tape_stmts, value
     
     def __parse_colon_statement(self) -> None:
 

@@ -145,11 +145,12 @@ class InitialStateStatement(Statement):
 
 
 class CodeStatement(Statement):
-    __slots__ = ('tape', 'node_type')
+    __slots__ = ('tape', 'node_type', 'start_idx')
 
-    def __init__(self, tape: list[Literal] | None = None) -> None:
+    def __init__(self, tape: list[Literal] | None = None, start_idx: int = 0) -> None:
         self.tape      = tape if tape else []
         self.node_type = NodeType.CodeStatement
+        self.start_idx = start_idx
 
     def json(self) -> dict:
         return {

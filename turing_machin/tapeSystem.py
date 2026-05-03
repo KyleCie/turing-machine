@@ -55,10 +55,20 @@ class Tape:
 
         return self.index
 
-    def reset_indexisation(self) -> None:
+    def reset_indexisation(self, index: int = 0) -> None:
 
         self.index = 0
         self.on_chain = self.first_chain
+        
+        if index > 0:
+            while self.index < index:
+                self.go_right()
+        
+        elif index < 0:
+            while self.index > index:
+                self.go_left()
+        
+        return None
 
     def __str__(self) -> str:
         

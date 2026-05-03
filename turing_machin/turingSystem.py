@@ -56,6 +56,7 @@ class Turing:
         self.states: dict[str, dict[str, Transition]] = {}
         self.initial_state: str | None = None
         self.tape: Tape | None = None
+        self.tape_idx: int = 0
 
         self.__parse_program()
 
@@ -69,7 +70,7 @@ class Turing:
             
         self.end: bool = False
 
-        self.tape.reset_indexisation() #type: ignore
+        self.tape.reset_indexisation(self.tape_idx) #type: ignore
 
         return None
 
@@ -125,6 +126,7 @@ class Turing:
                             chain.set_value(case.value)
                         
                         self.tape = tape_sys
+                        self.tape_idx = stmt.start_idx #type: ignore
 
             return None
         
