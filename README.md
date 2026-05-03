@@ -137,6 +137,17 @@ code:
 END
 ```
 
+You can add after the tape, an "start: X" with X the starting position of the machin :
+
+```
+code:
+    _, _, _, _
+    start : 2
+END
+```
+
+The machin will start at position 2 of the tape.
+
 ---
 
 ## Transition Rules
@@ -339,14 +350,15 @@ When the parser have the TextIOWrapper, it will automaticly resolve the warnings
 
 ## Updates
 
+- 03/05/26, [see commit](https://github.com/KyleCie/turing-machine/commit/757d15a3e225a9271881ddda3465b3bc786d2aa0) : Added a keyword to choose an index starting position for the machin in the code part.
 - 02/O5/26, [see commit](https://github.com/KyleCie/turing-machine/commit/dd22ee100251a38bc3abd5998def30d2fd3d474a) : bugfix with the logic of the checker system with no name's states and the recursive states search.
 - 02/05/26, [see commit 1](https://github.com/KyleCie/turing-machine/commit/b02b8cb06e31aa7799f0620bd1ffab44e1c92e09), [see commit 2](https://github.com/KyleCie/turing-machine/commit/0600aa712a4215114f25e26514eee7cbf8507332) : some more optimizations but no real results.
-- 01/05/26, [see commit](https://github.com/KyleCie/turing-machine/commit/49976340adbe4fb5094f79d9d42142f2742fccc4) : Redone the lexer and a lot of thing to optimize the parsing system ; with the same file, 0.065sec to 0.011sec, 234940 functions calls down to 37057. More than  80% difference in speed.
-- 30/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/02a45576fefe7b80192ff28aa1a672403340024f) : First version of a graphic system for the Turing machin. 
+- 01/05/26, [see commit](https://github.com/KyleCie/turing-machine/commit/49976340adbe4fb5094f79d9d42142f2742fccc4) : Redone the lexer and a lot of thing to optimize the parsing system ; with the same file, 0.065sec to 0.011sec, 234940 functions calls down to 37057. More than 80% difference in speed.
+- 30/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/02a45576fefe7b80192ff28aa1a672403340024f) : First version of a graphic system for the Turing machin.
 - 17/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/79445b7ea119c07a1ded61630ba3466f57dfb5b9) : Implemented a new logic for the keywords so it can be more modular, and can fixes bugs into the future of the project.
 - 17/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/9ef90080ad86c8dc2ef2c5ec5bb6fa06b2b84b75) : Added an system to find if there is a possibility (or "path") to go on all the states, if not it's because the states will technically never be used. Added the silencer on the checker from the parser. Better errors handler in the machin.
 - 15/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/202a7568ef815d277b532d208fbb8d3af29b6e5c) : Added an auto typos corrector in program files, bugfix for the parser with the 'end of file' handling, even better handler of TypoError.
-- 14/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/aa6a22cd0a3cd4a03215243e5802e56e1b0f40f1) : First version of a better system to handle TypoError, and auto-troubleshoot it, and create warning + bugfix in the lexer with the logic of the variable 'line_no'. 
+- 14/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/aa6a22cd0a3cd4a03215243e5802e56e1b0f40f1) : First version of a better system to handle TypoError, and auto-troubleshoot it, and create warning + bugfix in the lexer with the logic of the variable 'line_no'.
 - 12/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/e405669b61dd4ee2ba46ed4b07a72eefcc5e8f14) : Fixed bugs in the logic of the parser when handling the body of some parts, created a new type of error for the parser + checker, better logic for IDENT (literals, names, ...) handling (now it can handle pretty much anything).
 - 06/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/d7c0e38eea4bfdaa022c1d8ebe5b868ec27d99b3) : the first version of the Turing machin was created, it use a double-linked chain method, and you can visualised by printing the tape. Also added a .lower() to the lexer when adding a keywords for easier uses of thoses values.
 - 05/04/26, [see commit](https://github.com/KyleCie/turing-machine/commit/03840bd1d608d9831ef7faed95c935bb59f8b6ba): Reworked the entire checker system to integrate it into the parser, and introduced proper exceptions. [See discussion](https://github.com/KyleCie/turing-machine/issues/1)
